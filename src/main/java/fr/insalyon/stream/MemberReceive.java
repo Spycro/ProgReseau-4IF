@@ -33,7 +33,7 @@ public class MemberReceive extends Thread{
             DatagramPacket packet = new DatagramPacket(buf, buf.length);
             try {
                 multicastSocket.receive(packet);
-                String received = new String(packet.getData(), 0, packet.getLength());
+                String received = new String(packet.getData(), 0, packet.getLength()+1);
                 System.out.println(received);
             } catch (IOException e) {
             }
