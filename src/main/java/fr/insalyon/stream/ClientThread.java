@@ -10,8 +10,7 @@ package fr.insalyon.stream;
 import java.io.*;
 import java.net.*;
 
-public class ClientThread
-	extends Thread {
+public class ClientThread extends Thread {
 	
 	private Socket clientSocket;
 	

@@ -20,11 +20,14 @@ public class EchoServer  {
     	  try {
     		BufferedReader socIn = null;
     		socIn = new BufferedReader(
-    			new InputStreamReader(clientSocket.getInputStream()));    
+    			new InputStreamReader(clientSocket.getInputStream())
+			);    
     		PrintStream socOut = new PrintStream(clientSocket.getOutputStream());
     		while (true) {
-    		  String line = socIn.readLine();
-    		  socOut.println(line);
+			
+				String line = socIn.readLine();
+				socOut.println(line);
+				System.out.println("Client connecté : " + line);
     		}
     	} catch (Exception e) {
         	System.err.println("Error in EchoServer:" + e); 
@@ -40,8 +43,8 @@ public class EchoServer  {
         ServerSocket listenSocket;
         
   	if (args.length != 1) {
-          System.out.println("Usage: java EchoServer <EchoServer port>");
-          System.exit(1);
+			System.out.println("Usage: java EchoServer <EchoServer port>");
+			System.exit(1);
   	}
 	try {
 		listenSocket = new ServerSocket(Integer.parseInt(args[0])); //port
@@ -55,5 +58,3 @@ public class EchoServer  {
         }
       }
   }
-
-  

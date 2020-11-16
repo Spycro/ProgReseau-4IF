@@ -11,7 +11,7 @@ import java.net.*;
 
 
 
-public class EchoClient {
+public class ChatClient {
 
  
   /**
