@@ -7,36 +7,59 @@
 
 package fr.insalyon.stream;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.net.Socket;
 
 public class ClientThread extends Thread {
-	
-	private Socket clientSocket;
-	
-	ClientThread(Socket s) {
-		this.clientSocket = s;
-	}
 
- 	/**
-  	* receives a request from client then sends an echo to the client
-  	* @param clientSocket the client socket
-  	**/
-	public void run() {
-    	  try {
-    		BufferedReader socIn = null;
-    		socIn = new BufferedReader(
-    			new InputStreamReader(clientSocket.getInputStream()));    
-    		PrintStream socOut = new PrintStream(clientSocket.getOutputStream());
-    		while (true) {
-    		  String line = socIn.readLine();
-    		  socOut.println(line);
-    		}
-    	} catch (Exception e) {
-        	System.err.println("Error in EchoServer:" + e); 
+    private final ChatServer server;
+    private final Socket clientSocket;
+    private BufferedReader socIn;
+    private PrintStream socOut;
+    private String username;
+
+    ClientThread(Socket s, ChatServer c) {
+        this.clientSocket = s;
+        server = c;
+    }
+
+    /**
+     *
+     *
+     *
+     **/
+    public void run() {
+        try {
+            socIn = new BufferedReader(
+                    new InputStreamReader(clientSocket.getInputStream()));
+            socOut = new PrintStream(clientSocket.getOutputStream());
+
+            sendMessage("Historique des messages : ");
+            sendMessage(server.getHistory());
+            socOut.println("Username : ");
+            username = socIn.readLine();
+
+            String line = "";
+            while (!line.equals(".")) {
+                line = socIn.readLine();
+                server.sendToAll("["+username + "]: " + line, this);
+                //socOut.println(line);
+
+            }
+            clientSocket.close();
+            server.removeThread(this);
+        } catch (Exception e) {
+            System.err.println("Error in EchoServer:" + e);
         }
-       }
-  
-  }
+    }
+
+    public void sendMessage(String message){
+        socOut.println(message);
+    }
+
+
+}
 
   

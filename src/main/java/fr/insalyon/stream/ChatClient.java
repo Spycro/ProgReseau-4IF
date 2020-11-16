@@ -23,45 +23,46 @@ public class ChatClient {
      **/
     public static void main(String[] args) throws IOException {
 
-        Socket echoSocket = null;
-        PrintStream socOut = null;
+
         BufferedReader stdIn = null;
-        BufferedReader socIn = null;
 
         if (args.length != 2) {
             System.out.println("Usage: java EchoClient <EchoServer host> <EchoServer port>");
             System.exit(1);
         }
 
+        String host = args[0];
+        int port = Integer.parseInt(args[1]);
+
         try {
             // creation socket ==> connexion
-            echoSocket = new Socket(args[0], Integer.parseInt(args[1]));
-            socIn = new BufferedReader(
-                    new InputStreamReader(echoSocket.getInputStream()));
-            socOut = new PrintStream(echoSocket.getOutputStream());
+            Socket chatSocket = new Socket(host, port);
+            PrintStream socOut = new PrintStream(chatSocket.getOutputStream());
+
+            ChatClientThread cct = new ChatClientThread(chatSocket);
+            cct.start();
             stdIn = new BufferedReader(new InputStreamReader(System.in));
+            String line;
+            while (true) {
+                line = stdIn.readLine();
+                socOut.println(line);
+                if (line.equals(".")) break;
+                //System.out.println("envoi de: " + line);
+            }
+            System.out.println("Closing connection");
+            chatSocket.close();
+            cct.stopThread();
         } catch (UnknownHostException e) {
-            System.err.println("Don't know about host:" + args[0]);
+            System.err.println("Don't know about host:" + host);
             System.exit(1);
         } catch (IOException e) {
             System.err.println("Couldn't get I/O for "
-                    + "the connection to:" + args[0]);
+                    + "the connection to:" + host);
             System.exit(1);
         }
-
-        String line;
-        while (true) {
-            line = stdIn.readLine();
-            if (line.equals(".")) break;
-            socOut.println(line);
-            System.out.println("envoi de: " + line);
-            System.out.println("réception de : " + socIn.readLine());
-        }
-        socOut.close();
-        socIn.close();
-        stdIn.close();
-        echoSocket.close();
     }
+
+
 }
 
 

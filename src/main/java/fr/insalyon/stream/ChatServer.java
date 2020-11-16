@@ -7,10 +7,9 @@
 
 package fr.insalyon.stream;
 
-import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ChatServer  {
   
@@ -21,18 +20,19 @@ public class ChatServer  {
 	**/
 
 	private int PORT;
-	private List<ClientThread> clients;
+	private Set<ClientThread> clients;
 	private ServerSocket listenSocket;
-
+	private ChatHistory chatHistory;
 
 	public ChatServer(){
 		PORT = 8000;
-		clients = new ArrayList<>();
+		clients = new HashSet<>();
 	}
 
 	public ChatServer(int PORT){
 		this.PORT = PORT;
-		clients = new ArrayList<>();
+		clients = new HashSet<>();
+		chatHistory = new ChatHistory();
 	}
 
 	public void LaunchServer(){
@@ -42,15 +42,37 @@ public class ChatServer  {
 			while(true){
 				Socket clientSocket = listenSocket.accept();
 				System.out.println("Connexion from : " + clientSocket.getInetAddress());
-				ClientThread ct = new ClientThread(clientSocket);
+				ClientThread ct = new ClientThread(clientSocket, this);
 				clients.add(ct);
 				ct.start();
 			}
-
-
 		} catch(Exception e){
 			System.err.println("Error in ChatServer" + e);
 		}
+	}
+
+	public void sendToAll(String message){
+		for(ClientThread client : clients){
+			client.sendMessage(message);
+		}
+	}
+
+	public void sendToAll(String message, ClientThread sent){
+		chatHistory.addMessageToHistory(message);
+		for(ClientThread client : clients){
+			if(client != sent)
+				client.sendMessage(message);
+		}
+	}
+
+	public void removeThread(ClientThread t){
+		System.out.println("Removing a client");
+		clients.remove(t);
+		sendToAll("[SERVER]: A user disconnected");
+	}
+
+	public String getHistory(){
+		return chatHistory.getHistoryAsString();
 	}
 
 	public static void main(String args[]) {
