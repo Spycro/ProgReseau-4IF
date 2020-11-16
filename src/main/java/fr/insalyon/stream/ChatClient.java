@@ -51,7 +51,8 @@ public class ChatClient {
         	line=stdIn.readLine();
         	if (line.equals(".")) break;
         	socOut.println(line);
-        	System.out.println("echo: " + socIn.readLine());
+            System.out.println("envoi de: " + line);
+        	System.out.println("réception de : " + socIn.readLine());
         }
       socOut.close();
       socIn.close();
