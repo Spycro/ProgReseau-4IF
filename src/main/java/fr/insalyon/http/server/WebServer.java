@@ -108,10 +108,12 @@ public class WebServer {
                 System.out.println("body : " + body);
 
                 if(header.get(0).contains("GET")) {
-                    data = doGET(header.get(0));
+                    String resourceLocation = header.get(0).substring(4, header.get(0).lastIndexOf(' '));
+                    data = doGET(resourceLocation);
                 }
                 else if(header.get(0).contains("POST")){
-                    doPOST(header.get(0), body);
+                    String resourceLocation = header.get(0).substring(5, header.get(0).lastIndexOf(' '));
+                    data = doPOST(resourceLocation, body);
                 }
                 else if(header.get(0).contains("PUT")){
                     data = doPUT(header, in);
@@ -139,9 +141,6 @@ public class WebServer {
 
 
     public byte[] doGET(String location){
-        location = location.substring(4);
-        int indexOfSpace = location.indexOf(" ");
-        location = location.substring(0, indexOfSpace);
         byte[] data = new byte[0];
         try {
             File file = new File(pwd + location);
@@ -157,12 +156,10 @@ public class WebServer {
         return data;
     }
 
-    public void doPOST(String location, String body) throws IOException {
+    public byte[] doPOST(String location, String body) throws IOException {
 
         String variable = "";
         String value = "";
-        location = location.substring(5);
-        location = location.substring(0, location.indexOf(' '));
         if (body.matches("(?:\\w+=\\w+&?)+")) {
             while(body.length() != 0){
                 variable = body.substring(0, body.indexOf('='));
@@ -177,6 +174,20 @@ public class WebServer {
                 System.out.println("Recuperation de la variable " + variable + " egale a " + value);
             }
         }
+
+        byte[] data = new byte[0];
+        try {
+            File file = new File(pwd + location);
+            contentType = Files.probeContentType(file.toPath());
+            data = Files.readAllBytes(file.toPath());
+
+        } catch(FileNotFoundException e){
+
+            return "File Not Found".getBytes();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return data;
     }
 
     public byte[] doPUT(List<String> header, BufferedReader in) throws IOException{
@@ -202,6 +213,10 @@ public class WebServer {
 
 
         return data;
+
+    }
+
+    public void doDelete(String location, String body){
 
     }
 
