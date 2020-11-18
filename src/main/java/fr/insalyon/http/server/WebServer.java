@@ -76,19 +76,6 @@ public class WebServer {
                 List<String> header = new ArrayList<>();
                 String body = "";
 
-                while (str != null && !str.equals("")) {
-                    char c;
-                    str = "";
-                    while ((c = (char) in.read()) != '\n') {
-                        if (c != '\r') {
-                            str += c;
-                        }
-                    }
-                    header.add(str);
-                    System.out.println(str);
-                }
-                System.out.println("fini");
-
                 //Read header
                 while (str != null && !str.equals("")){
                     str = "";
@@ -168,26 +155,20 @@ public class WebServer {
 
     public byte[] doPOST(String location, String body) throws IOException {
 
+        String str = ".";
         String variable = "";
         String value = "";
         StringBuilder sb = new StringBuilder();
         sb.append("<H1>");
         location = location.substring(5);
         location = location.substring(0, location.indexOf(' '));
-        if (body.matches("(?:\\w+=\\w+&?)+")) {
-            while(body.length() != 0){
-                variable = body.substring(0, body.indexOf('='));
-                body = body.substring(body.indexOf('=') + 1);
-                if(body.indexOf('&') != -1){
-                    value = body.substring(0, body.indexOf('&'));
-                    body = body.substring(body.indexOf('&') + 1);
-                }else{
-                    value = body;
-                    body = "";
-                }
-                sb.append("Variable" + variable + " egale a " + value + "\n");
+            if(body.matches("(?:\\w+=\\w+&?)+")){
+                variable = str.substring(0, str.indexOf('='));
+                str = str.substring(str.indexOf('=') + 1);
+                value = str.substring(0, str.indexOf('&'));
+                str = str.substring(str.indexOf('&') + 1);
+                sb.append("Variable" + variable + " egale a " + value +"\n");
             }
-        }
 
 
         sb.append("<H1>");
