@@ -99,15 +99,19 @@ public class WebServer {
                     }
                 }
 
-                if(contentLength != 0)
-                    body = remote.getInputStream().readNBytes(contentLength).toString();
-                System.out.println("body :" + body);
+                char c;
+                for(int i = 0 ; i < contentLength ; ++i){
+                    c = (char)in.read();
+                    //System.out.println(c);
+                    body += c;
+                }
+                System.out.println("body : " + body);
 
                 if(header.get(0).contains("GET")) {
                     data = doGET(header.get(0));
                 }
                 else if(header.get(0).contains("POST")){
-                    data = doPOST(header.get(0), body);
+                    doPOST(header.get(0), body);
                 }
                 else if(header.get(0).contains("PUT")){
                     data = doPUT(header, in);
@@ -153,28 +157,26 @@ public class WebServer {
         return data;
     }
 
-    public byte[] doPOST(String location, String body) throws IOException {
+    public void doPOST(String location, String body) throws IOException {
 
-        String str = ".";
         String variable = "";
         String value = "";
-        StringBuilder sb = new StringBuilder();
-        sb.append("<H1>");
         location = location.substring(5);
         location = location.substring(0, location.indexOf(' '));
-            if(body.matches("(?:\\w+=\\w+&?)+")){
-                variable = str.substring(0, str.indexOf('='));
-                str = str.substring(str.indexOf('=') + 1);
-                value = str.substring(0, str.indexOf('&'));
-                str = str.substring(str.indexOf('&') + 1);
-                sb.append("Variable" + variable + " egale a " + value +"\n");
+        if (body.matches("(?:\\w+=\\w+&?)+")) {
+            while(body.length() != 0){
+                variable = body.substring(0, body.indexOf('='));
+                body = body.substring(body.indexOf('=') + 1);
+                if(body.indexOf('&') != -1){
+                    value = body.substring(0, body.indexOf('&'));
+                    body = body.substring(body.indexOf('&') + 1);
+                }else{
+                    value = body;
+                    body = "";
+                }
+                System.out.println("Recuperation de la variable " + variable + " egale a " + value);
             }
-
-
-        sb.append("<H1>");
-        byte[] data = sb.toString().getBytes();
-
-        return data;
+        }
     }
 
     public byte[] doPUT(List<String> header, BufferedReader in) throws IOException{
