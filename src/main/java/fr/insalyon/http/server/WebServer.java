@@ -21,7 +21,7 @@ import java.util.Scanner;
 public class WebServer {
 
 
-    private final String pwd = "/home/lucas/Documents/IF/ProgReseau/www";
+    private final String pwd = "/home/lucas/Documents/IF/ProgReseau/resources";
     /**
      * Start the application.
      *
@@ -94,11 +94,10 @@ public class WebServer {
                 // this blank line signals the end of the headers
                 out.println("");
                 // Send the HTML page
-
-                remote.getOutputStream().write(data, 0, data.length);
-
-                out.println();
                 out.flush();
+                remote.getOutputStream().write(data, 0, data.length);
+                System.out.write(data);
+
                 remote.close();
             } catch (Exception e) {
                 System.out.println("Error: " + e);
