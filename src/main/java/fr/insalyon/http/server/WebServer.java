@@ -23,7 +23,7 @@ import java.util.Scanner;
 public class WebServer {
 
 
-    private final String pwd = "/home/lucas/Documents/IF/ProgReseau/resources";
+    private final String pwd = "C:\\Users\\Kaolyfin\\IdeaProjects\\ProgReseau-4IF\\resources";
     private String contentType;
 
 
@@ -74,7 +74,20 @@ public class WebServer {
                 boolean firstline = true;
 
                 List<String> header = new ArrayList<>();
-                List<String> body = new ArrayList<>();
+                String body = "";
+
+                while (str != null && !str.equals("")) {
+                    char c;
+                    str = "";
+                    while ((c = (char) in.read()) != '\n') {
+                        if (c != '\r') {
+                            str += c;
+                        }
+                    }
+                    header.add(str);
+                    System.out.println(str);
+                }
+                System.out.println("fini");
 
                 //Read header
                 while (str != null && !str.equals("")){
@@ -89,11 +102,25 @@ public class WebServer {
                     System.out.println(str);
                 }
 
+                //Read body
+                int contentLength = 0;
+                for(String headerTag : header){
+                    if(headerTag.contains("Content-Length")){
+                        String[] splitted = headerTag.split(" ");
+                        contentLength = Integer.parseInt(splitted[1]);
+                        break;
+                    }
+                }
+
+                if(contentLength != 0)
+                    body = remote.getInputStream().readNBytes(contentLength).toString();
+                System.out.println("body :" + body);
+
                 if(header.get(0).contains("GET")) {
                     data = doGET(header.get(0));
                 }
                 else if(header.get(0).contains("POST")){
-                    data = doPOST(header.get(0), in);
+                    data = doPOST(header.get(0), body);
                 }
                 else if(header.get(0).contains("PUT")){
                     data = doPUT(header, in);
@@ -139,25 +166,29 @@ public class WebServer {
         return data;
     }
 
-    public byte[] doPOST(String location, BufferedReader in) throws IOException {
+    public byte[] doPOST(String location, String body) throws IOException {
 
-        String str = ".";
         String variable = "";
         String value = "";
         StringBuilder sb = new StringBuilder();
         sb.append("<H1>");
         location = location.substring(5);
         location = location.substring(0, location.indexOf(' '));
-        while (str != null && !str.equals("")) {
-            str = in.readLine();
-            if(str.matches("(?:\\w+=\\w+&?)+")){
-                variable = str.substring(0, str.indexOf('='));
-                str = str.substring(str.indexOf('=') + 1);
-                value = str.substring(0, str.indexOf('&'));
-                str = str.substring(str.indexOf('&') + 1);
-                sb.append("Variable" + variable + " egale a " + value +"\n");
+        if (body.matches("(?:\\w+=\\w+&?)+")) {
+            while(body.length() != 0){
+                variable = body.substring(0, body.indexOf('='));
+                body = body.substring(body.indexOf('=') + 1);
+                if(body.indexOf('&') != -1){
+                    value = body.substring(0, body.indexOf('&'));
+                    body = body.substring(body.indexOf('&') + 1);
+                }else{
+                    value = body;
+                    body = "";
+                }
+                sb.append("Variable" + variable + " egale a " + value + "\n");
             }
         }
+
 
         sb.append("<H1>");
         byte[] data = sb.toString().getBytes();
