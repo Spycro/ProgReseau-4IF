@@ -91,7 +91,7 @@ public class WebServer {
                     data = doGET(header.get(0));
                 }
                 else if(header.get(0).contains("POST")){
-                    data = doPOST(str, in);
+                    data = doPOST(header, in);
                 }
                 else if(header.get(0).contains("PUT")){
                     data = doPUT(header, in);
@@ -137,24 +137,26 @@ public class WebServer {
         return data;
     }
 
-    public byte[] doPOST(String location, BufferedReader in) throws IOException {
+    public byte[] doPOST(List<String> header, BufferedReader in) throws IOException {
 
         String str = ".";
         String variable = "";
         String value = "";
         StringBuilder sb = new StringBuilder();
         sb.append("<H1>");
-        location = location.substring(5);
+        String location = header.get(0).substring(5);
         location = location.substring(0, location.indexOf(' '));
         while (str != null) {
             str = in.readLine();
             if(str.matches("(?:\\w+=\\w+&?)+")){
+                System.out.println("MAtched");
                 variable += str.substring(0, str.indexOf('='));
                 str = str.substring(str.indexOf('=') + 1);
                 value += str.substring(0, str.indexOf('&'));
                 str = str.substring(str.indexOf('&') + 1);
                 sb.append("Variable" + variable + " egale a " + value +"\n");
             }
+            System.out.println(str);
         }
 
         sb.append("<H1>");
