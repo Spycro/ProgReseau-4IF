@@ -2,11 +2,11 @@
 
 package fr.insalyon.http.server;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.util.Scanner;
 
 /**
  * Example program from Chapter 1 Programming Spiders, Bots and Aggregators in
@@ -21,7 +21,7 @@ import java.net.Socket;
 public class WebServer {
 
 
-
+    private final String pwd = "/home/lucas/Documents/IF/ProgReseau/www";
     /**
      * Start the application.
      *
@@ -63,13 +63,28 @@ public class WebServer {
                 // stop reading once a blank line is hit. This
                 // blank line signals the end of the client HTTP
                 // headers.
+                byte[] data = new byte[0];
                 String str = ".";
                 String request = "";
+                boolean firstline = true;
                 while (str != null && !str.equals("")) {
                     str = in.readLine();
-                    if (str.contains("GET")) {
-                        doGET(str);
+                    if(firstline){
+                        if(str.contains("GET")) {
+                            data = doGET(str);
+                        }
+                        else if(str.contains("POST")){
+
+                        }
+                        else if(str.contains("PUT")){
+
+                        }
+                        else if(str.contains("DELETE")){
+
+                        }
                     }
+                    firstline = false;
+
                 }
                 // Send the response
                 // Send the headers
@@ -79,7 +94,10 @@ public class WebServer {
                 // this blank line signals the end of the headers
                 out.println("");
                 // Send the HTML page
-                out.println("<H1>Welcome to the Ultra Mini-WebServer</H2>");
+
+                remote.getOutputStream().write(data, 0, data.length);
+
+                out.println();
                 out.flush();
                 remote.close();
             } catch (Exception e) {
@@ -89,11 +107,25 @@ public class WebServer {
     }
 
 
-    public void doGET(String location){
+    public byte[] doGET(String location){
         location = location.substring(4);
         int indexOfSpace = location.indexOf(" ");
         location = location.substring(0, indexOfSpace);
-        
+        byte[] data = new byte[0];
+        try {
+            File file = new File(pwd + location);
 
+            data = Files.readAllBytes(file.toPath());
+
+        } catch(FileNotFoundException e){
+
+            return "File Not Found".getBytes();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return data;
     }
+
+
+
 }
