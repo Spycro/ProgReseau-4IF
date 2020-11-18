@@ -119,7 +119,8 @@ public class WebServer {
                     data = doPUT(header, in);
                 }
                 else if(header.get(0).contains("DELETE")){
-
+                    String resourceLocation = header.get(0).substring(7, header.get(0).lastIndexOf(' '));
+                    data = doDelete(resourceLocation);
                 }
                 // Send the response
                 // Send the headers
@@ -216,8 +217,20 @@ public class WebServer {
 
     }
 
-    public void doDelete(String location, String body){
+    public byte[] doDelete(String location){
+        String info = "<!doctype html><html><body><H1>";
+        File fileToDelete = new File(pwd + location);
+        if (fileToDelete.delete()) {
+            info += "Fichier supprimé: " + fileToDelete.getName();
+            System.out.println("supprimé");
+        } else {
+            info += "Echec de la suppression.";
+            System.out.println("echec");
+        }
 
+        info += "</H1></body></html>";
+        byte[] data = info.getBytes();
+        return data;
     }
 
 }
