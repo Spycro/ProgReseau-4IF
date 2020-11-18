@@ -21,7 +21,7 @@ import java.util.Scanner;
 public class WebServer {
 
 
-    private final String pwd = "/home/lucas/Documents/IF/ProgReseau/resources";
+    private final String pwd = "C:\\Users\\Kaolyfin\\IdeaProjects\\ProgReseau-4IF\\resources";
     /**
      * Start the application.
      *
@@ -74,7 +74,7 @@ public class WebServer {
                             data = doGET(str);
                         }
                         else if(str.contains("POST")){
-
+                            data = doPOST(str, in);
                         }
                         else if(str.contains("PUT")){
 
@@ -125,6 +125,13 @@ public class WebServer {
         return data;
     }
 
+    public byte[] doPOST(String location, BufferedReader in) throws IOException {
 
+        String str = in.readLine();
+
+        byte[] data = new byte[0];
+
+        return data;
+    }
 
 }
