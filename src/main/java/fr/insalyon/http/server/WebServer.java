@@ -77,7 +77,7 @@ public class WebServer {
                             data = doGET(str);
                         }
                         else if(str.contains("POST")){
-
+                            data = doPOST(str, in);
                         }
                         else if(str.contains("PUT")){
 
@@ -128,6 +128,13 @@ public class WebServer {
         return data;
     }
 
+    public byte[] doPOST(String location, BufferedReader in) throws IOException {
 
+        String str = in.readLine();
+
+        byte[] data = new byte[0];
+
+        return data;
+    }
 
 }
