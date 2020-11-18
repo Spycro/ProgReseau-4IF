@@ -6,6 +6,8 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -70,23 +72,31 @@ public class WebServer {
                 String str = ".";
                 String request = "";
                 boolean firstline = true;
-                while (str != null && !str.equals("")) {
-                    str = in.readLine();
-                    if(firstline){
-                        if(str.contains("GET")) {
-                            data = doGET(str);
-                        }
-                        else if(str.contains("POST")){
-                            data = doPOST(str, in);
-                        }
-                        else if(str.contains("PUT")){
 
-                        }
-                        else if(str.contains("DELETE")){
+                List<String> header = new ArrayList<>();
 
+                //Read header
+                while (str != null && !str.equals("")){
+                    str = "";
+                    char c;
+                    while ((c=(char)in.read()) != '\n'){
+                        if(c != '\r'){
+                            str += c;
                         }
                     }
-                    firstline = false;
+                    header.add(str);
+                    System.out.println(str);
+                }
+                if(header.get(0).contains("GET")) {
+                    data = doGET(header.get(0));
+                }
+                else if(header.get(0).contains("POST")){
+                    data = doPOST(str, in);
+                }
+                else if(header.get(0).contains("PUT")){
+                    data = doPUT(header, in);
+                }
+                else if(header.get(0).contains("DELETE")){
 
                 }
                 // Send the response
@@ -99,7 +109,6 @@ public class WebServer {
                 // Send the HTML page
                 out.flush();
                 remote.getOutputStream().write(data, 0, data.length);
-                System.out.write(data);
 
                 remote.close();
             } catch (Exception e) {
@@ -135,6 +144,32 @@ public class WebServer {
         byte[] data = new byte[0];
 
         return data;
+    }
+
+    public byte[] doPUT(List<String> header, BufferedReader in) throws IOException{
+        String location = header.get(0).substring(4);
+        int indexOfSpace = location.indexOf(" ");
+        location = location.substring(0, indexOfSpace);
+        int contentLength = 0;
+        //read request :
+        for(String headerTag : header){
+            if(headerTag.contains("Content-Length")){
+                String[] splitted = headerTag.split(" ");
+                contentLength = Integer.parseInt(splitted[1]);
+            }
+        }
+        byte[] data = new byte[contentLength];
+
+        File file = new File(pwd);
+
+        if(file.exists()) {
+            return "Resource already exist".getBytes();
+        }
+        file.createNewFile();
+
+
+        return data;
+
     }
 
 }
