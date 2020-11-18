@@ -20,6 +20,8 @@ import java.net.Socket;
  */
 public class WebServer {
 
+
+
     /**
      * Start the application.
      *
@@ -62,9 +64,13 @@ public class WebServer {
                 // blank line signals the end of the client HTTP
                 // headers.
                 String str = ".";
-                while (str != null && !str.equals(""))
+                String request = "";
+                while (str != null && !str.equals("")) {
                     str = in.readLine();
-
+                    if (str.contains("GET")) {
+                        doGET(str);
+                    }
+                }
                 // Send the response
                 // Send the headers
                 out.println("HTTP/1.0 200 OK");
@@ -80,5 +86,14 @@ public class WebServer {
                 System.out.println("Error: " + e);
             }
         }
+    }
+
+
+    public void doGET(String location){
+        location = location.substring(4);
+        int indexOfSpace = location.indexOf(" ");
+        location = location.substring(0, indexOfSpace);
+        
+
     }
 }
