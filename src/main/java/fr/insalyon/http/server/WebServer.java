@@ -22,6 +22,9 @@ public class WebServer {
 
 
     private final String pwd = "/home/lucas/Documents/IF/ProgReseau/resources";
+    private String contentType;
+
+
     /**
      * Start the application.
      *
@@ -89,7 +92,7 @@ public class WebServer {
                 // Send the response
                 // Send the headers
                 out.println("HTTP/1.0 200 OK");
-                out.println("Content-Type: text/html");
+                out.println("Content-Type: "+contentType);
                 out.println("Server: Bot");
                 // this blank line signals the end of the headers
                 out.println("");
@@ -113,7 +116,7 @@ public class WebServer {
         byte[] data = new byte[0];
         try {
             File file = new File(pwd + location);
-
+            contentType = Files.probeContentType(file.toPath());
             data = Files.readAllBytes(file.toPath());
 
         } catch(FileNotFoundException e){
