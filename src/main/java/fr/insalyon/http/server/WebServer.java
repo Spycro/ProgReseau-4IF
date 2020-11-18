@@ -74,6 +74,7 @@ public class WebServer {
                 boolean firstline = true;
 
                 List<String> header = new ArrayList<>();
+                List<String> body = new ArrayList<>();
 
                 //Read header
                 while (str != null && !str.equals("")){
@@ -87,11 +88,12 @@ public class WebServer {
                     header.add(str);
                     System.out.println(str);
                 }
+
                 if(header.get(0).contains("GET")) {
                     data = doGET(header.get(0));
                 }
                 else if(header.get(0).contains("POST")){
-                    data = doPOST(str, in);
+                    data = doPOST(header.get(0), in);
                 }
                 else if(header.get(0).contains("PUT")){
                     data = doPUT(header, in);
@@ -146,12 +148,12 @@ public class WebServer {
         sb.append("<H1>");
         location = location.substring(5);
         location = location.substring(0, location.indexOf(' '));
-        while (str != null) {
+        while (str != null && !str.equals("")) {
             str = in.readLine();
             if(str.matches("(?:\\w+=\\w+&?)+")){
-                variable += str.substring(0, str.indexOf('='));
+                variable = str.substring(0, str.indexOf('='));
                 str = str.substring(str.indexOf('=') + 1);
-                value += str.substring(0, str.indexOf('&'));
+                value = str.substring(0, str.indexOf('&'));
                 str = str.substring(str.indexOf('&') + 1);
                 sb.append("Variable" + variable + " egale a " + value +"\n");
             }
