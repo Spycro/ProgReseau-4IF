@@ -127,9 +127,26 @@ public class WebServer {
 
     public byte[] doPOST(String location, BufferedReader in) throws IOException {
 
-        String str = in.readLine();
+        String str = ".";
+        String variable = "";
+        String value = "";
+        StringBuilder sb = new StringBuilder();
+        sb.append("<H1>");
+        location = location.substring(5);
+        location = location.substring(0, location.indexOf(' '));
+        while (str != null) {
+            str = in.readLine();
+            if(str.matches("(?:\\w+=\\w+&?)+")){
+                variable += str.substring(0, str.indexOf('='));
+                str = str.substring(str.indexOf('=') + 1);
+                value += str.substring(0, str.indexOf('&'));
+                str = str.substring(str.indexOf('&') + 1);
+                sb.append("Variable" + variable + " egale a " + value +"\n");
+            }
+        }
 
-        byte[] data = new byte[0];
+        sb.append("<H1>");
+        byte[] data = sb.toString().getBytes();
 
         return data;
     }
