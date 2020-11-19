@@ -109,28 +109,29 @@ public class WebServer {
 
                 if(header.get(0).contains("GET")) {
                     String resourceLocation = header.get(0).substring(4, header.get(0).lastIndexOf(' '));
-                    data = doGET(resourceLocation);
+                    data = doGET(resourceLocation, out);
                 }
                 else if(header.get(0).contains("POST")){
                     String resourceLocation = header.get(0).substring(5, header.get(0).lastIndexOf(' '));
-                    data = doPOST(resourceLocation, body);
+                    data = doPOST(resourceLocation, body, out);
                 }
                 else if(header.get(0).contains("PUT")){
                     data = doPUT(header, in);
                 }
                 else if(header.get(0).contains("DELETE")){
                     String resourceLocation = header.get(0).substring(7, header.get(0).lastIndexOf(' '));
-                    data = doDelete(resourceLocation);
+                    data = doDelete(resourceLocation, out);
                 }
                 // Send the response
                 // Send the headers
-                out.println("HTTP/1.0 200 OK");
+
                 out.println("Content-Type: "+contentType);
                 out.println("Server: Bot");
                 // this blank line signals the end of the headers
                 out.println("");
                 // Send the HTML page
                 out.flush();
+
                 remote.getOutputStream().write(data, 0, data.length);
 
                 remote.close();
@@ -141,23 +142,22 @@ public class WebServer {
     }
 
 
-    public byte[] doGET(String location){
+    public byte[] doGET(String location, PrintWriter out){
         byte[] data = new byte[0];
         try {
             File file = new File(pwd + location);
             contentType = Files.probeContentType(file.toPath());
             data = Files.readAllBytes(file.toPath());
+            out.println("HTTP/1.0 200 OK");
 
-        } catch(FileNotFoundException e){
-
-            return "File Not Found".getBytes();
         } catch (IOException e) {
-            e.printStackTrace();
+            out.println("HTTP/1.0 404 File Not Found");
+            return "Error 404 : File Not Found".getBytes();
         }
         return data;
     }
 
-    public byte[] doPOST(String location, String body) throws IOException {
+    public byte[] doPOST(String location, String body, PrintWriter out) throws IOException {
 
         String variable = "";
         String value = "";
@@ -181,12 +181,11 @@ public class WebServer {
             File file = new File(pwd + location);
             contentType = Files.probeContentType(file.toPath());
             data = Files.readAllBytes(file.toPath());
+            out.println("HTTP/1.0 200 OK");
 
-        } catch(FileNotFoundException e){
-
-            return "File Not Found".getBytes();
         } catch (IOException e) {
-            e.printStackTrace();
+            out.println("HTTP/1.0 404 File Not Found");
+            return "Error 404 : File Not Found".getBytes();
         }
         return data;
     }
@@ -217,10 +216,16 @@ public class WebServer {
 
     }
 
-    public byte[] doDelete(String location){
-        String info = "<!doctype html><html><body><H1>";
+    public byte[] doDelete(String location, PrintWriter out){
+        String info = "<H1>";
         File fileToDelete = new File(pwd + location);
+        if(!fileToDelete.exists()){
+            out.println("HTTP/1.0 404 File Not Found");
+            System.out.println("echec");
+            return "Error 404 : File Not Found".getBytes();
+        } else
         if (fileToDelete.delete()) {
+            out.println("HTTP/1.0 200 OK");
             info += "Fichier supprimé: " + fileToDelete.getName();
             System.out.println("supprimé");
         } else {
@@ -228,7 +233,7 @@ public class WebServer {
             System.out.println("echec");
         }
 
-        info += "</H1></body></html>";
+        info += "</H1>";
         byte[] data = info.getBytes();
         return data;
     }
