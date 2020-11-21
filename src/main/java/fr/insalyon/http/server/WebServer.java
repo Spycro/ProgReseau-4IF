@@ -161,7 +161,8 @@ public class WebServer {
 
         String variable = "";
         String value = "";
-        if (body.matches("(?:\\w+=\\w+&?)+")) {
+        String infos = "";
+        if (body.matches("(?:\\w+=\\w*&?)+")) {
             while(body.length() != 0){
                 variable = body.substring(0, body.indexOf('='));
                 body = body.substring(body.indexOf('=') + 1);
@@ -172,6 +173,7 @@ public class WebServer {
                     value = body;
                     body = "";
                 }
+                infos += variable + " = " + value + " & ";
                 System.out.println("Recuperation de la variable " + variable + " egale a " + value);
             }
         }
@@ -187,6 +189,12 @@ public class WebServer {
             out.println("HTTP/1.0 404 File Not Found");
             return "Error 404 : File Not Found".getBytes();
         }
+
+        if(infos.length() > 1){
+            String dataString = new String(data) + "<h1>" +  infos.substring(0,infos.length()-2) + "</h1>";
+            data = dataString.getBytes();
+        }
+
         return data;
     }
 
