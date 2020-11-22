@@ -8,7 +8,6 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * Example program from Chapter 1 Programming Spiders, Bots and Aggregators in
@@ -23,7 +22,7 @@ import java.util.Scanner;
 public class WebServer {
 
 
-    private final String pwd = "C:\\Users\\Kaolyfin\\IdeaProjects\\ProgReseau-4IF\\resources";
+    private final String pwd = "/lucas/Documents/IF/ProgReseau/resource";
     private String contentType;
 
 
@@ -64,14 +63,9 @@ public class WebServer {
                         remote.getInputStream()));
                 PrintWriter out = new PrintWriter(remote.getOutputStream());
 
-                // read the data sent. We basically ignore it,
-                // stop reading once a blank line is hit. This
-                // blank line signals the end of the client HTTP
-                // headers.
+                // read the data sent.
                 byte[] data = new byte[0];
                 String str = ".";
-                String request = "";
-                boolean firstline = true;
 
                 List<String> header = new ArrayList<>();
                 String body = "";
@@ -89,7 +83,7 @@ public class WebServer {
                     System.out.println(str);
                 }
 
-                //Read body
+
                 int contentLength = 0;
                 for(String headerTag : header){
                     if(headerTag.contains("Content-Length")){
@@ -98,25 +92,26 @@ public class WebServer {
                         break;
                     }
                 }
-
+                //Read body with content length
                 char c;
                 for(int i = 0 ; i < contentLength ; ++i){
                     c = (char)in.read();
-                    //System.out.println(c);
                     body += c;
                 }
                 System.out.println("body : " + body);
 
+                Response response = new Response(remote);
+
                 if(header.get(0).contains("GET")) {
                     String resourceLocation = header.get(0).substring(4, header.get(0).lastIndexOf(' '));
-                    data = doGET(resourceLocation, out);
+                    data = doGET(resourceLocation, out, response);
                 }
                 else if(header.get(0).contains("POST")){
                     String resourceLocation = header.get(0).substring(5, header.get(0).lastIndexOf(' '));
                     data = doPOST(resourceLocation, body, out);
                 }
                 else if(header.get(0).contains("PUT")){
-                    data = doPUT(header, in);
+                    data = doPUT(header, body);
                 }
                 else if(header.get(0).contains("DELETE")){
                     String resourceLocation = header.get(0).substring(7, header.get(0).lastIndexOf(' '));
@@ -124,16 +119,18 @@ public class WebServer {
                 }
                 // Send the response
                 // Send the headers
-
-                out.println("Content-Type: "+contentType);
-                out.println("Server: Bot");
+                response.setContentType(contentType);
+                //out.println("Content-Type: "+contentType);
+                response.setUserAgent("Server: Bot");
+                //out.println("Server: Bot");
                 // this blank line signals the end of the headers
-                out.println("");
+                //out.println("");
                 // Send the HTML page
-                out.flush();
+                //out.flush();
 
-                remote.getOutputStream().write(data, 0, data.length);
-
+                //remote.getOutputStream().write(data, 0, data.length);
+                System.out.println("sending response");
+                response.send();
                 remote.close();
             } catch (Exception e) {
                 System.out.println("Error: " + e);
@@ -142,18 +139,22 @@ public class WebServer {
     }
 
 
-    public byte[] doGET(String location, PrintWriter out){
+    public byte[] doGET(String location, PrintWriter out, Response response){
         byte[] data = new byte[0];
         try {
             File file = new File(pwd + location);
             contentType = Files.probeContentType(file.toPath());
             data = Files.readAllBytes(file.toPath());
-            out.println("HTTP/1.0 200 OK");
+            //out.println("HTTP/1.0 200 OK");
+            response.setResponseCode(200);
 
         } catch (IOException e) {
-            out.println("HTTP/1.0 404 File Not Found");
+            //out.println("HTTP/1.0 404 File Not Found");
+            response.setResponseCode(404);
             return "Error 404 : File Not Found".getBytes();
         }
+        System.out.println("data responded on get "+data);
+        response.setBody(data);
         return data;
     }
 
@@ -176,10 +177,9 @@ public class WebServer {
                 infos += variable + " = " + value + " & ";
                 System.out.println("Recuperation de la variable " + variable + " egale a " + value);
             }
-            System.out.println(str);
         }
 
-        byte[] data = new byte[0];
+        byte[] data;
         try {
             File file = new File(pwd + location);
             contentType = Files.probeContentType(file.toPath());
@@ -199,7 +199,7 @@ public class WebServer {
         return data;
     }
 
-    public byte[] doPUT(List<String> header, BufferedReader in) throws IOException{
+    public byte[] doPUT(List<String> header, String body) throws IOException{
         String location = header.get(0).substring(4);
         int indexOfSpace = location.indexOf(" ");
         location = location.substring(0, indexOfSpace);
@@ -219,6 +219,11 @@ public class WebServer {
             return "Resource already exist".getBytes();
         }
         file.createNewFile();
+        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
+        bos.write(body.getBytes());
+        bos.flush();
+        bos.close();
+
         return "Resources created".getBytes();
     }
 
