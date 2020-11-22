@@ -185,10 +185,7 @@ public class WebServer {
             return "Resource already exist".getBytes();
         }
         file.createNewFile();
-
-
-        return data;
-
+        return "Resources created".getBytes();
     }
 
 }
