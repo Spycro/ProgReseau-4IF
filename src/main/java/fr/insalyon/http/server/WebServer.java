@@ -23,7 +23,7 @@ import java.util.Scanner;
 public class WebServer {
 
 
-    private final String pwd = "/home/lucas/Documents/IF/ProgReseau/resources";
+    private final String pwd = "C:\\Users\\Kaolyfin\\IdeaProjects\\ProgReseau-4IF\\resources";
     private String contentType;
 
 
@@ -74,6 +74,7 @@ public class WebServer {
                 boolean firstline = true;
 
                 List<String> header = new ArrayList<>();
+                String body = "";
 
                 //Read header
                 while (str != null && !str.equals("")){
@@ -87,27 +88,50 @@ public class WebServer {
                     header.add(str);
                     System.out.println(str);
                 }
+
+                //Read body
+                int contentLength = 0;
+                for(String headerTag : header){
+                    if(headerTag.contains("Content-Length")){
+                        String[] splitted = headerTag.split(" ");
+                        contentLength = Integer.parseInt(splitted[1]);
+                        break;
+                    }
+                }
+
+                char c;
+                for(int i = 0 ; i < contentLength ; ++i){
+                    c = (char)in.read();
+                    //System.out.println(c);
+                    body += c;
+                }
+                System.out.println("body : " + body);
+
                 if(header.get(0).contains("GET")) {
-                    data = doGET(header.get(0));
+                    String resourceLocation = header.get(0).substring(4, header.get(0).lastIndexOf(' '));
+                    data = doGET(resourceLocation, out);
                 }
                 else if(header.get(0).contains("POST")){
-                    data = doPOST(header, in);
+                    String resourceLocation = header.get(0).substring(5, header.get(0).lastIndexOf(' '));
+                    data = doPOST(resourceLocation, body, out);
                 }
                 else if(header.get(0).contains("PUT")){
                     data = doPUT(header, in);
                 }
                 else if(header.get(0).contains("DELETE")){
-
+                    String resourceLocation = header.get(0).substring(7, header.get(0).lastIndexOf(' '));
+                    data = doDelete(resourceLocation, out);
                 }
                 // Send the response
                 // Send the headers
-                out.println("HTTP/1.0 200 OK");
+
                 out.println("Content-Type: "+contentType);
                 out.println("Server: Bot");
                 // this blank line signals the end of the headers
                 out.println("");
                 // Send the HTML page
                 out.flush();
+
                 remote.getOutputStream().write(data, 0, data.length);
 
                 remote.close();
@@ -118,49 +142,59 @@ public class WebServer {
     }
 
 
-    public byte[] doGET(String location){
-        location = location.substring(4);
-        int indexOfSpace = location.indexOf(" ");
-        location = location.substring(0, indexOfSpace);
+    public byte[] doGET(String location, PrintWriter out){
         byte[] data = new byte[0];
         try {
             File file = new File(pwd + location);
             contentType = Files.probeContentType(file.toPath());
             data = Files.readAllBytes(file.toPath());
+            out.println("HTTP/1.0 200 OK");
 
-        } catch(FileNotFoundException e){
-
-            return "File Not Found".getBytes();
         } catch (IOException e) {
-            e.printStackTrace();
+            out.println("HTTP/1.0 404 File Not Found");
+            return "Error 404 : File Not Found".getBytes();
         }
         return data;
     }
 
-    public byte[] doPOST(List<String> header, BufferedReader in) throws IOException {
+    public byte[] doPOST(String location, String body, PrintWriter out) throws IOException {
 
-        String str = ".";
         String variable = "";
         String value = "";
-        StringBuilder sb = new StringBuilder();
-        sb.append("<H1>");
-        String location = header.get(0).substring(5);
-        location = location.substring(0, location.indexOf(' '));
-        while (str != null) {
-            str = in.readLine();
-            if(str.matches("(?:\\w+=\\w+&?)+")){
-                System.out.println("MAtched");
-                variable += str.substring(0, str.indexOf('='));
-                str = str.substring(str.indexOf('=') + 1);
-                value += str.substring(0, str.indexOf('&'));
-                str = str.substring(str.indexOf('&') + 1);
-                sb.append("Variable" + variable + " egale a " + value +"\n");
+        String infos = "";
+        if (body.matches("(?:\\w+=\\w*&?)+")) {
+            while(body.length() != 0){
+                variable = body.substring(0, body.indexOf('='));
+                body = body.substring(body.indexOf('=') + 1);
+                if(body.indexOf('&') != -1){
+                    value = body.substring(0, body.indexOf('&'));
+                    body = body.substring(body.indexOf('&') + 1);
+                }else{
+                    value = body;
+                    body = "";
+                }
+                infos += variable + " = " + value + " & ";
+                System.out.println("Recuperation de la variable " + variable + " egale a " + value);
             }
             System.out.println(str);
         }
 
-        sb.append("<H1>");
-        byte[] data = sb.toString().getBytes();
+        byte[] data = new byte[0];
+        try {
+            File file = new File(pwd + location);
+            contentType = Files.probeContentType(file.toPath());
+            data = Files.readAllBytes(file.toPath());
+            out.println("HTTP/1.0 200 OK");
+
+        } catch (IOException e) {
+            out.println("HTTP/1.0 404 File Not Found");
+            return "Error 404 : File Not Found".getBytes();
+        }
+
+        if(infos.length() > 1){
+            String dataString = new String(data) + "<h1>" +  infos.substring(0,infos.length()-2) + "</h1>";
+            data = dataString.getBytes();
+        }
 
         return data;
     }
@@ -186,6 +220,28 @@ public class WebServer {
         }
         file.createNewFile();
         return "Resources created".getBytes();
+    }
+
+    public byte[] doDelete(String location, PrintWriter out){
+        String info = "<H1>";
+        File fileToDelete = new File(pwd + location);
+        if(!fileToDelete.exists()){
+            out.println("HTTP/1.0 404 File Not Found");
+            System.out.println("echec");
+            return "Error 404 : File Not Found".getBytes();
+        } else
+        if (fileToDelete.delete()) {
+            out.println("HTTP/1.0 200 OK");
+            info += "Fichier supprimé: " + fileToDelete.getName();
+            System.out.println("supprimé");
+        } else {
+            info += "Echec de la suppression.";
+            System.out.println("echec");
+        }
+
+        info += "</H1>";
+        byte[] data = info.getBytes();
+        return data;
     }
 
 }
