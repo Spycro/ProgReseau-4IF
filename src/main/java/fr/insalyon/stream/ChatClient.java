@@ -46,7 +46,7 @@ public class ChatClient {
             while (!socOut.checkError()) {
                 line = stdIn.readLine();
                 socOut.println(line);
-                if (line.equals(".")) break;
+                if (line.equals("/leave")) break;
             }
             System.out.println("Closing connection");
             chatSocket.close();

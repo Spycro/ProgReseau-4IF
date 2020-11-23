@@ -43,7 +43,7 @@ public class ClientThread extends Thread {
             server.sendToAllExceptSender("[SERVER]: " + username +" connected.", this);
             boolean stop = false;
             String line = "";
-            while (!line.equals(".")) {
+            while (true) {
                 server.sendToAll("["+username + "]: " + line);
                 line = socIn.readLine();
                 if(line.startsWith("/")){
