@@ -13,16 +13,16 @@ public class MemberReceive extends Thread{
     private MulticastSocket multicastSocket;
     private byte[] buf = new byte[1000];
     private boolean connected;
+    private ChatMemberWindow window;
 
-    public MemberReceive(int PORT, InetAddress address){
+    public MemberReceive(int PORT, InetAddress address, ChatMemberWindow w){
         groupPort = PORT;
+        window = w;
         try {
             groupAddr = address;
             multicastSocket = new MulticastSocket(groupPort);
             multicastSocket.joinGroup(groupAddr);
             connected = true;
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -33,9 +33,11 @@ public class MemberReceive extends Thread{
             DatagramPacket packet = new DatagramPacket(buf, buf.length);
             try {
                 multicastSocket.receive(packet);
-                String received = new String(packet.getData(), 0, packet.getLength()+1);
+                String received = new String(packet.getData(), 0, packet.getLength());
+                window.addToChat(received);
                 System.out.println(received);
             } catch (IOException e) {
+                e.printStackTrace();
             }
         }
 
@@ -47,7 +49,7 @@ public class MemberReceive extends Thread{
         multicastSocket.close();
     }
 
-    public void disconnect() throws IOException {
+    public void disconnect() {
         connected = false;
     }
 }

@@ -10,45 +10,43 @@ import java.net.UnknownHostException;
 
 public class ChatMember {
 
-    InetAddress groupAddr;
-    int groupPort;
-    MulticastSocket multicastSocket;
-    MemberReceive memberReceive;
-    BufferedReader stdIn = null;
-    String username;
+    private InetAddress groupAddr;
+    private int groupPort;
+    private MulticastSocket multicastSocket;
+    private MemberReceive memberReceive;
+    private BufferedReader stdIn = null;
+    private String username;
 
     public ChatMember(int PORT, String addressName){
         this.groupPort = PORT;
-        this.memberReceive = memberReceive;
         try {
             groupAddr = InetAddress.getByName(addressName);
             multicastSocket = new MulticastSocket(groupPort);
             multicastSocket.joinGroup(groupAddr);
             stdIn = new BufferedReader(new InputStreamReader(System.in));
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void launchChatMember() throws IOException {
-        System.out.println("Entrer votre nom utilisateur : ");
-        username = stdIn.readLine();
-        memberReceive = new MemberReceive(groupPort, groupAddr);
+    private void launchChatMember() throws IOException {
+        //System.out.println("Entrer votre nom utilisateur : ");
+        //username = stdIn.readLine();
+        ChatMemberWindow window = new ChatMemberWindow(multicastSocket, this);
+        memberReceive = new MemberReceive(groupPort, groupAddr, window);
         memberReceive.start();
-        sendMessage("Connexion de " + username);
+        sendMessage("[SERVEUR] : Connexion de " + username);
         String line;
         while (true) {
             line = stdIn.readLine();
-            if (line.equals(".")) break;
+            if (line.equals("/leave")) break;
             sendMessage("[" + username + "] : " + line);
         }
         leave();
     }
 
     public void leave() throws IOException {
-        sendMessage("Deconnexion de " + username);
+        sendMessage("[SERVEUR] : Deconnexion de " + username);
         memberReceive.disconnect();
         multicastSocket.close();
     }
@@ -58,6 +56,13 @@ public class ChatMember {
         multicastSocket.send(packet);
     }
 
+    public String getUsername(){
+        return username;
+    }
+
+    public void setUsername(String name){
+        this.username = name;
+    }
 
     public static void main(String[] args) throws IOException {
         if (args.length != 2) {
