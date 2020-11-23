@@ -145,7 +145,7 @@ public class WebServer {
 
     }
 
-    public void doPOST(String location, String body, Response response) throws IOException {
+    public void doPOST(String location, String body, Response response){
 
         String variable = "";
         String value = "";
