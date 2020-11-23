@@ -43,7 +43,7 @@ public class ChatClient {
             cct.start();
             stdIn = new BufferedReader(new InputStreamReader(System.in));
             String line;
-            while (true) {
+            while (!socOut.checkError()) {
                 line = stdIn.readLine();
                 socOut.println(line);
                 if (line.equals(".")) break;

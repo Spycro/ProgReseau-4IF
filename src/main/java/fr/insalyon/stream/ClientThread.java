@@ -41,15 +41,28 @@ public class ClientThread extends Thread {
             socOut.println("Username : ");
             username = socIn.readLine();
             server.sendToAllExceptSender("[SERVER]: " + username +" connected.", this);
+            boolean stop = false;
             String line = "";
             while (!line.equals(".")) {
                 line = socIn.readLine();
+                if(line.startsWith("/")){
+                    switch (line){
+                        case "/leave":
+                            stop = true;
+                            break;
+                        default:
+                            socOut.println("I don't know about this command");
+
+                    }
+
+                }
                 server.sendToAllExceptSender("["+username + "]: " + line, this);
                 //socOut.println(line);
+                if(stop) break;
 
             }
             clientSocket.close();
-            server.removeThread(this, username);
+            server.removeThread(this);
         } catch (Exception e) {
             System.err.println("Error in EchoServer:" + e);
         }
@@ -59,6 +72,9 @@ public class ClientThread extends Thread {
         socOut.println(message);
     }
 
+    public String getUsername(){
+        return username;
+    }
 
 }
 

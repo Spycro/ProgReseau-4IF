@@ -69,10 +69,10 @@ public class ChatServer  {
 		}
 	}
 
-	public void removeThread(ClientThread t, String username){
+	public void removeThread(ClientThread t){
 		System.out.println("Removing a client");
 		clients.remove(t);
-		sendToAll("[SERVER]: User "+ username +" disconnected");
+		sendToAll("[SERVER]: User "+ t.getUsername() +" disconnected");
 	}
 
 	public String getHistory(){
