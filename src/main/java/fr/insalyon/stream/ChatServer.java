@@ -58,7 +58,7 @@ public class ChatServer  {
 	public void sendToAll(String message){
 		appendToHistory(message + "\n");
 		for(ClientThread client : clients){
-			client.sendMessage(message);
+			client.sendMessage("[ALL]" + message);
 		}
 	}
 
@@ -66,7 +66,7 @@ public class ChatServer  {
 		appendToHistory(roomNumber + ";" + message + "\n");
 		for(ClientThread client : clients){
 			if(client.getRoomNumber() == roomNumber){
-				client.sendMessage(message);
+				client.sendMessage( "[" + roomNumber +"]" +message);
 			}
 		}
 	}
@@ -74,7 +74,7 @@ public class ChatServer  {
 	public void sendToAllExceptSender(String message, ClientThread sent) throws IOException {
 		for(ClientThread client : clients){
 			if(client != sent)
-				client.sendMessage(message);
+				client.sendMessage("[ALL]"+message);
 		}
 	}
 

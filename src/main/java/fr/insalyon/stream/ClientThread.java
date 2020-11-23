@@ -59,6 +59,13 @@ public class ClientThread extends Thread {
                             sendMessage("[SERVER]: please provide a valid room number");
                         }
                     }
+                    else if(line.equals("/help")){
+                        StringBuilder b = new StringBuilder();
+                        b.append("[SERVER]: Command list :\n");
+                        b.append("[SERVER]: /leave : leave chat\n");
+                        b.append("[SERVER]: /join {room_number} : join room number room_number (only number)\n");
+                        sendMessage(b.toString());
+                    }
                     else{
                         sendMessage("[SERVER]: I don't know about this command");
 
