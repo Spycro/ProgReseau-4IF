@@ -44,6 +44,7 @@ public class ClientThread extends Thread {
             boolean stop = false;
             String line = "";
             while (!line.equals(".")) {
+                server.sendToAll("["+username + "]: " + line);
                 line = socIn.readLine();
                 if(line.startsWith("/")){
                     switch (line){
@@ -56,7 +57,6 @@ public class ClientThread extends Thread {
                     }
 
                 }
-                server.sendToAllExceptSender("["+username + "]: " + line, this);
                 //socOut.println(line);
                 if(stop) break;
 

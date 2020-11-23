@@ -6,6 +6,7 @@
  */
 package fr.insalyon.stream;
 
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,14 +17,13 @@ import java.net.UnknownHostException;
 
 public class ChatClient {
 
-
     /**
      * main method
      * accepts a connection, receives a message from client then sends an echo to the client
      **/
     public static void main(String[] args) throws IOException {
 
-
+        ChatClientWindow window = new ChatClientWindow();
         BufferedReader stdIn = null;
 
         if (args.length != 2) {
@@ -47,7 +47,6 @@ public class ChatClient {
                 line = stdIn.readLine();
                 socOut.println(line);
                 if (line.equals(".")) break;
-                //System.out.println("envoi de: " + line);
             }
             System.out.println("Closing connection");
             chatSocket.close();

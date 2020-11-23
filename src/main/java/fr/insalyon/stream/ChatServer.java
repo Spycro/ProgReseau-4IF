@@ -56,13 +56,13 @@ public class ChatServer  {
 	}
 
 	public void sendToAll(String message){
+		appendToHistory(message + "\n");
 		for(ClientThread client : clients){
 			client.sendMessage(message);
 		}
 	}
 
 	public void sendToAllExceptSender(String message, ClientThread sent) throws IOException {
-        appendToHistory(message + "\n");
 		for(ClientThread client : clients){
 			if(client != sent)
 				client.sendMessage(message);
@@ -81,12 +81,14 @@ public class ChatServer  {
 
 		try {
 			File historyFile = new File (historyPath);
-			Scanner reader = new Scanner(historyFile);
-			while (reader.hasNextLine()){
-				String data = reader.nextLine();
-				history.append(data + "\n");
+			if(historyFile.exists()){
+				Scanner reader = new Scanner(historyFile);
+				while (reader.hasNextLine()){
+					String data = reader.nextLine();
+					history.append(data + "\n");
+				}
+				reader.close();
 			}
-			reader.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -100,6 +102,7 @@ public class ChatServer  {
 			FileWriter out = new FileWriter(historyPath, true);
 			out.write(msg);
 			out.close();
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
