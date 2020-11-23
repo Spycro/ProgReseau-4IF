@@ -35,7 +35,7 @@ public class Response {
     public void send() throws IOException {
 
         OutputStream os = remote.getOutputStream();
-        PrintWriter pw = new PrintWriter(System.out);
+        PrintWriter pw = new PrintWriter(remote.getOutputStream());
         switch(responseCode){
             case 200:
                 pw.println("HTTP/1.0 200 OK");
@@ -44,6 +44,7 @@ public class Response {
         }
         pw.println(userAgent);
         pw.println(contentType);
+        pw.println();
         pw.flush();
         if(body != null) {
             os.write(body);
