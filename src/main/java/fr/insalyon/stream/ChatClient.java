@@ -23,7 +23,6 @@ public class ChatClient {
      **/
     public static void main(String[] args) throws IOException {
 
-        ChatClientWindow window = new ChatClientWindow();
         BufferedReader stdIn = null;
 
         if (args.length != 2) {
@@ -61,8 +60,6 @@ public class ChatClient {
             System.exit(1);
         }
     }
-
-
 }
 
 

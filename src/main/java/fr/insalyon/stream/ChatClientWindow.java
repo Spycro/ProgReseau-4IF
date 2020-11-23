@@ -4,11 +4,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
 
-public class ChatClientWindow extends Frame implements ActionListener {
+import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
+
+public class ChatClientWindow extends Frame implements ActionListener, KeyListener {
 
     private JFrame f;
     private JTextField msg;
@@ -28,7 +32,7 @@ public class ChatClientWindow extends Frame implements ActionListener {
         }
 
         JFrame startingFrame = new JFrame("Nom utilisateur");
-        startingFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        startingFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         String username = (String)JOptionPane.showInputDialog(
                 startingFrame,
@@ -39,12 +43,18 @@ public class ChatClientWindow extends Frame implements ActionListener {
                 null,
                 "Bob"
         );
-        if(!username.isEmpty()){
+        if(username != null && !username.isEmpty()){
             socOut.println(username);
+        }
+        else{
+            System.exit(0);
         }
 
         f = new JFrame();
+        f.setTitle(username);
         f.setResizable(false);
+        f.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        f.setLocationRelativeTo(null);
 
         chatArea = new JTextArea();
         chatArea.setEditable(false);
@@ -57,7 +67,8 @@ public class ChatClientWindow extends Frame implements ActionListener {
         l1.setBounds(50,240, 100,30);
 
         msg=new JTextField();
-        msg.setBounds(50,270, 500,30);
+        msg.setBounds(50,270, 500,25);
+        msg.addKeyListener(this);
 
         send = new JButton("Envoyer");
         send.setBounds(550, 270, 100, 30);
@@ -74,12 +85,39 @@ public class ChatClientWindow extends Frame implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-        socOut.println(msg.getText());
-        msg.setText("");
+        sendMessage(msg.getText());
     }
 
     public void addToChat(String message){
-
         chatArea.append(message + "\n");
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        int key = e.getKeyCode();
+
+        if (key == KeyEvent.VK_ENTER) {
+            sendMessage(msg.getText());
+        }
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {}
+
+    @Override
+    public void keyReleased(KeyEvent e) {}
+
+    private void sendMessage(String message){
+        socOut.println(message);
+        if(message.equals("/leave")){
+            System.exit(0);
+            try {
+                chatSocket.close();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        }else{
+            msg.setText("");
+        }
     }
 }

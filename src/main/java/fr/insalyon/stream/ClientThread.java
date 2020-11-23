@@ -40,15 +40,15 @@ public class ClientThread extends Thread {
 
             sendMessage("Historique des messages : ");
             sendMessage(server.getRoomHistory(roomNumber));
-            socOut.println("Username : ");
+            //socOut.println("Username : ");
             username = socIn.readLine();
             server.sendToAllExceptSender("[SERVER]: " + username +" connected.", this);
             boolean stop = false;
             String line = "";
             while (true) {
-                if(!line.isEmpty()){
+/*                if(!line.isEmpty()){
                     server.sendToAll("["+username + "]: " + line);
-                }
+                }*/
 
                 line = socIn.readLine();
                 if(line.startsWith("/")){
@@ -77,7 +77,9 @@ public class ClientThread extends Thread {
 
                 }
                 else{
-                    server.sendToRoom("["+username + "]: " + line, roomNumber);
+                    if(!line.isEmpty()) {
+                        server.sendToRoom("[" + username + "]: " + line, roomNumber);
+                    }
                 }
                 if(stop) break;
 
