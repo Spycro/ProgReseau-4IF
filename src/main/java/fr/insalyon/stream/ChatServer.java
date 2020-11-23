@@ -7,8 +7,13 @@
 
 package fr.insalyon.stream;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.*;
 import java.util.HashSet;
+import java.util.Scanner;
 import java.util.Set;
 
 public class ChatServer  {
@@ -22,18 +27,17 @@ public class ChatServer  {
 	private int PORT;
 	private Set<ClientThread> clients;
 	private ServerSocket listenSocket;
-	private ChatHistory chatHistory;
+	private final String historyPath = "history.txt";
 
 	public ChatServer(){
 		PORT = 8000;
 		clients = new HashSet<>();
 	}
 
-	public ChatServer(int PORT){
+	public ChatServer(int PORT) {
 		this.PORT = PORT;
 		clients = new HashSet<>();
-		chatHistory = new ChatHistory();
-	}
+    }
 
 	public void LaunchServer(){
 		try{
@@ -57,8 +61,8 @@ public class ChatServer  {
 		}
 	}
 
-	public void sendToAll(String message, ClientThread sent){
-		chatHistory.addMessageToHistory(message);
+	public void sendToAll(String message, ClientThread sent) throws IOException {
+        appendToHistory(message + "\n");
 		for(ClientThread client : clients){
 			if(client != sent)
 				client.sendMessage(message);
@@ -72,7 +76,33 @@ public class ChatServer  {
 	}
 
 	public String getHistory(){
-		return chatHistory.getHistoryAsString();
+
+		StringBuilder history = new StringBuilder();
+
+		try {
+			File historyFile = new File (historyPath);
+			Scanner reader = new Scanner(historyFile);
+			while (reader.hasNextLine()){
+				String data = reader.nextLine();
+				history.append(data + "\n");
+			}
+			reader.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		return history.toString();
+	}
+
+	private void appendToHistory(String msg){
+
+		try {
+			FileWriter out = new FileWriter(historyPath, true);
+			out.write(msg);
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static void main(String args[]) {
