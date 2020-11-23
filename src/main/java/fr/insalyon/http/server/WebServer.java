@@ -22,7 +22,7 @@ import java.util.List;
 public class WebServer {
 
 
-    private final String pwd = "C:\\Users\\Kaolyfin\\IdeaProjects\\ProgReseau-4IF\\resources";
+    private final String pwd = "/home/lucas/Documents/IF/ProgReseau/resources";
     private String contentType;
 
 
@@ -134,6 +134,7 @@ public class WebServer {
     public void doGET(String location, Response response){
         byte[] data;
         try {
+            if (location.equals("/")) location = "/index.html";
             File file = new File(pwd + location);
             contentType = Files.probeContentType(file.toPath());
             data = Files.readAllBytes(file.toPath());
