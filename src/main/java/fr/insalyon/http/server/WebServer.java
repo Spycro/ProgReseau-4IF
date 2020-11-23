@@ -22,7 +22,7 @@ import java.util.List;
 public class WebServer {
 
 
-    private final String pwd = "/home/lucas/Documents/IF/ProgReseau/resources";
+    private final String pwd = "C:\\Users\\Kaolyfin\\IdeaProjects\\ProgReseau-4IF\\resources";
     private String contentType;
 
 
@@ -172,18 +172,17 @@ public class WebServer {
             contentType = Files.probeContentType(file.toPath());
             data = Files.readAllBytes(file.toPath());
             response.setResponseCode(200);
+
+            if(infos.length() > 1){
+                String dataString = new String(data) + "<h1>" +  infos.substring(0,infos.length()-2) + "</h1>";
+                data = dataString.getBytes();
+            }
             response.setBody(data);
 
         } catch (IOException e) {
             response.setResponseCode(404);
             response.setBody("Error 404 : File Not Found".getBytes());
         }
-        /*
-        if(infos.length() > 1){
-            String dataString = new String(data) + "<h1>" +  infos.substring(0,infos.length()-2) + "</h1>";
-            data = dataString.getBytes();
-        }*/
-
     }
 
     public void doPUT(List<String> header, String body, Response response) throws IOException{
