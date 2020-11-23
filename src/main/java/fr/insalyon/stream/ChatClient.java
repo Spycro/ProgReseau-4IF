@@ -23,7 +23,6 @@ public class ChatClient {
      **/
     public static void main(String[] args) throws IOException {
 
-        ChatClientWindow window = new ChatClientWindow();
         BufferedReader stdIn = null;
 
         if (args.length != 2) {
@@ -38,8 +37,9 @@ public class ChatClient {
             // creation socket ==> connexion
             Socket chatSocket = new Socket(host, port);
             PrintStream socOut = new PrintStream(chatSocket.getOutputStream());
+            ChatClientWindow window = new ChatClientWindow(chatSocket);
 
-            ChatClientThread cct = new ChatClientThread(chatSocket);
+            ChatClientThread cct = new ChatClientThread(chatSocket, window);
             cct.start();
             stdIn = new BufferedReader(new InputStreamReader(System.in));
             String line;

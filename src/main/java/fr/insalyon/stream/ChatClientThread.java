@@ -10,12 +10,14 @@ import java.net.UnknownHostException;
 
 public class ChatClientThread extends Thread{
 
+    private ChatClientWindow window;
     private Socket chatSocket;
     private BufferedReader socIn;
     private boolean running = true;
 
-    public ChatClientThread(Socket socket){
+    public ChatClientThread(Socket socket, ChatClientWindow w){
         chatSocket = socket;
+        window = w;
     }
 
     public void run() {
@@ -32,6 +34,7 @@ public class ChatClientThread extends Thread{
                 String line = socIn.readLine();
                 if (line == null) break;
                 System.out.println(line);
+                window.addToChat(line);
             } catch(SocketException e){
             } catch(IOException e){
                 System.err.println("Error while reading from socket " + e);

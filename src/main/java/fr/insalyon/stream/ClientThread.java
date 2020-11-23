@@ -31,6 +31,7 @@ public class ClientThread extends Thread {
      *
      **/
     public void run() {
+
         try {
             socIn = new BufferedReader(
                     new InputStreamReader(clientSocket.getInputStream()));
@@ -44,7 +45,10 @@ public class ClientThread extends Thread {
             boolean stop = false;
             String line = "";
             while (true) {
-                server.sendToAll("["+username + "]: " + line);
+                if(!line.isEmpty()){
+                    server.sendToAll("["+username + "]: " + line);
+                }
+
                 line = socIn.readLine();
                 if(line.startsWith("/")){
                     switch (line){
