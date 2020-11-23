@@ -62,6 +62,15 @@ public class ChatServer  {
 		}
 	}
 
+	public void sendToRoom(String message, int roomNumber){
+		appendToHistory(roomNumber + ";" + message + "\n");
+		for(ClientThread client : clients){
+			if(client.getRoomNumber() == roomNumber){
+				client.sendMessage(message);
+			}
+		}
+	}
+
 	public void sendToAllExceptSender(String message, ClientThread sent) throws IOException {
 		for(ClientThread client : clients){
 			if(client != sent)
@@ -86,6 +95,32 @@ public class ChatServer  {
 				while (reader.hasNextLine()){
 					String data = reader.nextLine();
 					history.append(data + "\n");
+				}
+				reader.close();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		return history.toString();
+	}
+
+	public String getRoomHistory(int roomNumber){
+		StringBuilder history = new StringBuilder();
+
+		try {
+			File historyFile = new File (historyPath);
+			if(historyFile.exists()){
+				Scanner reader = new Scanner(historyFile);
+				while (reader.hasNextLine()){
+					String data = reader.nextLine();
+					String [] dataArray = data.split(";");
+					if(dataArray.length == 2){
+						int room = Integer.parseInt(dataArray[0]);
+						if(room == roomNumber)
+							history.append(dataArray[1]).append("\n");
+					}
+
 				}
 				reader.close();
 			}
