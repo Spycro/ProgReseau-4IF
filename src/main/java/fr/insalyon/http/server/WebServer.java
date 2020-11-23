@@ -22,7 +22,7 @@ import java.util.List;
 public class WebServer {
 
 
-    private final String pwd = "/home/lucas/Documents/IF/ProgReseau/resources";
+    private final String pwd = "C:\\Users\\Kaolyfin\\IdeaProjects\\ProgReseau-4IF\\resources";
     private String contentType;
 
 
