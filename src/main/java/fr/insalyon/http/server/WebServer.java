@@ -8,7 +8,6 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * Example program from Chapter 1 Programming Spiders, Bots and Aggregators in
@@ -64,14 +63,9 @@ public class WebServer {
                         remote.getInputStream()));
                 PrintWriter out = new PrintWriter(remote.getOutputStream());
 
-                // read the data sent. We basically ignore it,
-                // stop reading once a blank line is hit. This
-                // blank line signals the end of the client HTTP
-                // headers.
+                // read the data sent.
                 byte[] data = new byte[0];
                 String str = ".";
-                String request = "";
-                boolean firstline = true;
 
                 List<String> header = new ArrayList<>();
                 String body = "";
@@ -89,7 +83,7 @@ public class WebServer {
                     System.out.println(str);
                 }
 
-                //Read body
+
                 int contentLength = 0;
                 for(String headerTag : header){
                     if(headerTag.contains("Content-Length")){
@@ -98,42 +92,37 @@ public class WebServer {
                         break;
                     }
                 }
-
+                //Read body with content length
                 char c;
                 for(int i = 0 ; i < contentLength ; ++i){
                     c = (char)in.read();
-                    //System.out.println(c);
                     body += c;
                 }
                 System.out.println("body : " + body);
 
+                Response response = new Response(remote);
+
                 if(header.get(0).contains("GET")) {
                     String resourceLocation = header.get(0).substring(4, header.get(0).lastIndexOf(' '));
-                    data = doGET(resourceLocation, out);
+                    doGET(resourceLocation, response);
                 }
                 else if(header.get(0).contains("POST")){
                     String resourceLocation = header.get(0).substring(5, header.get(0).lastIndexOf(' '));
-                    data = doPOST(resourceLocation, body, out);
+                    doPOST(resourceLocation, body, response);
                 }
                 else if(header.get(0).contains("PUT")){
-                    data = doPUT(header, in);
+                    doPUT(header, body, response);
                 }
                 else if(header.get(0).contains("DELETE")){
                     String resourceLocation = header.get(0).substring(7, header.get(0).lastIndexOf(' '));
-                    data = doDelete(resourceLocation, out);
+                    doDelete(resourceLocation, response);
                 }
-                // Send the response
-                // Send the headers
 
-                out.println("Content-Type: "+contentType);
-                out.println("Server: Bot");
-                // this blank line signals the end of the headers
-                out.println("");
-                // Send the HTML page
-                out.flush();
+                response.setContentType(contentType);
+                response.setUserAgent("Server: Bot");
 
-                remote.getOutputStream().write(data, 0, data.length);
-
+                System.out.println("sending response");
+                response.send();
                 remote.close();
             } catch (Exception e) {
                 System.out.println("Error: " + e);
@@ -142,22 +131,21 @@ public class WebServer {
     }
 
 
-    public byte[] doGET(String location, PrintWriter out){
-        byte[] data = new byte[0];
+    public void doGET(String location, Response response){
+        byte[] data;
         try {
             File file = new File(pwd + location);
             contentType = Files.probeContentType(file.toPath());
             data = Files.readAllBytes(file.toPath());
-            out.println("HTTP/1.0 200 OK");
-
+            response.setResponseCode(200);
+            response.setBody(data);
         } catch (IOException e) {
-            out.println("HTTP/1.0 404 File Not Found");
-            return "Error 404 : File Not Found".getBytes();
+            response.setResponseCode(404);
         }
-        return data;
+
     }
 
-    public byte[] doPOST(String location, String body, PrintWriter out) throws IOException {
+    public void doPOST(String location, String body, Response response){
 
         String variable = "";
         String value = "";
@@ -176,30 +164,28 @@ public class WebServer {
                 infos += variable + " = " + value + " & ";
                 System.out.println("Recuperation de la variable " + variable + " egale a " + value);
             }
-            System.out.println(str);
         }
 
-        byte[] data = new byte[0];
+        byte[] data;
         try {
             File file = new File(pwd + location);
             contentType = Files.probeContentType(file.toPath());
             data = Files.readAllBytes(file.toPath());
-            out.println("HTTP/1.0 200 OK");
+            response.setResponseCode(200);
+
+            if(infos.length() > 1){
+                String dataString = new String(data) + "<h1>" +  infos.substring(0,infos.length()-2) + "</h1>";
+                data = dataString.getBytes();
+            }
+            response.setBody(data);
 
         } catch (IOException e) {
-            out.println("HTTP/1.0 404 File Not Found");
-            return "Error 404 : File Not Found".getBytes();
+            response.setResponseCode(404);
+            response.setBody("Error 404 : File Not Found".getBytes());
         }
-
-        if(infos.length() > 1){
-            String dataString = new String(data) + "<h1>" +  infos.substring(0,infos.length()-2) + "</h1>";
-            data = dataString.getBytes();
-        }
-
-        return data;
     }
 
-    public byte[] doPUT(List<String> header, BufferedReader in) throws IOException{
+    public void doPUT(List<String> header, String body, Response response) throws IOException{
         String location = header.get(0).substring(4);
         int indexOfSpace = location.indexOf(" ");
         location = location.substring(0, indexOfSpace);
@@ -213,25 +199,35 @@ public class WebServer {
         }
         byte[] data = new byte[contentLength];
 
-        File file = new File(pwd);
+        File file = new File(pwd + location);
 
         if(file.exists()) {
-            return "Resource already exist".getBytes();
+            response.setResponseCode(200);
+            response.setBody("Resource already exist".getBytes());
+            return;
         }
         file.createNewFile();
-        return "Resources created".getBytes();
+        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
+        bos.write(body.getBytes());
+        bos.flush();
+        bos.close();
+
+        response.setResponseCode(200);
+        response.setBody("Resources created".getBytes());
+        return;
     }
 
-    public byte[] doDelete(String location, PrintWriter out){
+    public void doDelete(String location, Response response){
         String info = "<H1>";
         File fileToDelete = new File(pwd + location);
         if(!fileToDelete.exists()){
-            out.println("HTTP/1.0 404 File Not Found");
             System.out.println("echec");
-            return "Error 404 : File Not Found".getBytes();
+            response.setResponseCode(404);
+            response.setBody("Error 404 : File Not Found".getBytes());
+            return;
         } else
         if (fileToDelete.delete()) {
-            out.println("HTTP/1.0 200 OK");
+            response.setResponseCode(200);
             info += "Fichier supprimé: " + fileToDelete.getName();
             System.out.println("supprimé");
         } else {
@@ -241,7 +237,8 @@ public class WebServer {
 
         info += "</H1>";
         byte[] data = info.getBytes();
-        return data;
+        response.setBody(data);
+        return ;
     }
 
 }
