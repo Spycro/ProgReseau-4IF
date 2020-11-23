@@ -45,7 +45,7 @@ public class Response {
                 pw.println("HTTP/1.0 404 File Not Found");
                 break;
             default:
-                pw.println("HTTP/1.0 200 OK");
+                pw.println("HTTP/1.0 500 Internal Server Error");
                 break;
         }
         pw.println(userAgent);
