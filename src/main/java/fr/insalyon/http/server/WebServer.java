@@ -111,24 +111,16 @@ public class WebServer {
                     doPOST(resourceLocation, body, response);
                 }
                 else if(header.get(0).contains("PUT")){
-                    data = doPUT(header, body);
+                    doPUT(header, body, response);
                 }
                 else if(header.get(0).contains("DELETE")){
                     String resourceLocation = header.get(0).substring(7, header.get(0).lastIndexOf(' '));
-                    data = doDelete(resourceLocation, out);
+                    doDelete(resourceLocation, response);
                 }
-                // Send the response
-                // Send the headers
-                response.setContentType(contentType);
-                //out.println("Content-Type: "+contentType);
-                response.setUserAgent("Server: Bot");
-                //out.println("Server: Bot");
-                // this blank line signals the end of the headers
-                //out.println("");
-                // Send the HTML page
-                //out.flush();
 
-                //remote.getOutputStream().write(data, 0, data.length);
+                response.setContentType(contentType);
+                response.setUserAgent("Server: Bot");
+
                 System.out.println("sending response");
                 response.send();
                 remote.close();
@@ -194,7 +186,7 @@ public class WebServer {
 
     }
 
-    public byte[] doPUT(List<String> header, String body) throws IOException{
+    public void doPUT(List<String> header, String body, Response response) throws IOException{
         String location = header.get(0).substring(4);
         int indexOfSpace = location.indexOf(" ");
         location = location.substring(0, indexOfSpace);
@@ -208,10 +200,12 @@ public class WebServer {
         }
         byte[] data = new byte[contentLength];
 
-        File file = new File(pwd);
+        File file = new File(pwd + location);
 
         if(file.exists()) {
-            return "Resource already exist".getBytes();
+            response.setResponseCode(200);
+            response.setBody("Resource already exist".getBytes());
+            return;
         }
         file.createNewFile();
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
@@ -219,19 +213,22 @@ public class WebServer {
         bos.flush();
         bos.close();
 
-        return "Resources created".getBytes();
+        response.setResponseCode(200);
+        response.setBody("Resources created".getBytes());
+        return;
     }
 
-    public byte[] doDelete(String location, PrintWriter out){
+    public void doDelete(String location, Response response){
         String info = "<H1>";
         File fileToDelete = new File(pwd + location);
         if(!fileToDelete.exists()){
-            out.println("HTTP/1.0 404 File Not Found");
             System.out.println("echec");
-            return "Error 404 : File Not Found".getBytes();
+            response.setResponseCode(404);
+            response.setBody("Error 404 : File Not Found".getBytes());
+            return;
         } else
         if (fileToDelete.delete()) {
-            out.println("HTTP/1.0 200 OK");
+            response.setResponseCode(200);
             info += "Fichier supprimé: " + fileToDelete.getName();
             System.out.println("supprimé");
         } else {
@@ -241,7 +238,8 @@ public class WebServer {
 
         info += "</H1>";
         byte[] data = info.getBytes();
-        return data;
+        response.setBody(data);
+        return ;
     }
 
 }

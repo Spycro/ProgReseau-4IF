@@ -14,6 +14,7 @@ public class Response {
 
     public Response(Socket r){
         remote = r;
+        contentType = "text/html";
     }
 
     public void setResponseCode(int responseCode){
@@ -39,11 +40,21 @@ public class Response {
         switch(responseCode){
             case 200:
                 pw.println("HTTP/1.0 200 OK");
+                break;
             case 404:
                 pw.println("HTTP/1.0 404 File Not Found");
+                break;
+            default:
+                pw.println("HTTP/1.0 200 OK");
+                break;
         }
         pw.println(userAgent);
-        pw.println(contentType);
+        if(contentType != null){
+            pw.println(contentType);
+        }
+        else {
+            pw.println("Content-Type: text/html");
+        }
         pw.println();
         pw.flush();
         if(body != null) {
