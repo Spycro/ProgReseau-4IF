@@ -40,11 +40,11 @@ public class ClientThread extends Thread {
             sendMessage(server.getHistory());
             socOut.println("Username : ");
             username = socIn.readLine();
-            server.sendToAllExceptSender("[SERVER]: " + username +" connected.", this);
-            String line = "";
+            server.sendToAll("[SERVER]: " + username +" connected.");
+            String line = socIn.readLine();
             while (!line.equals(".")) {
+                server.sendToAll("["+username + "]: " + line);
                 line = socIn.readLine();
-                server.sendToAllExceptSender("["+username + "]: " + line, this);
                 //socOut.println(line);
 
             }
