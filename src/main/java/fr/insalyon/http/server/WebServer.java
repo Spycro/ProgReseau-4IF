@@ -176,6 +176,7 @@ public class WebServer {
                 infos += variable + " = " + value + " & ";
                 System.out.println("Recuperation de la variable " + variable + " egale a " + value);
             }
+            System.out.println(str);
         }
 
         byte[] data = new byte[0];
@@ -218,10 +219,7 @@ public class WebServer {
             return "Resource already exist".getBytes();
         }
         file.createNewFile();
-
-
-        return data;
-
+        return "Resources created".getBytes();
     }
 
     public byte[] doDelete(String location, PrintWriter out){
