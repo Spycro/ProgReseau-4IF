@@ -40,16 +40,16 @@ public class ClientThread extends Thread {
             sendMessage(server.getHistory());
             socOut.println("Username : ");
             username = socIn.readLine();
-            server.sendToAll("[SERVER]: " + username +" connected.", this);
+            server.sendToAllExceptSender("[SERVER]: " + username +" connected.", this);
             String line = "";
             while (!line.equals(".")) {
                 line = socIn.readLine();
-                server.sendToAll("["+username + "]: " + line, this);
+                server.sendToAllExceptSender("["+username + "]: " + line, this);
                 //socOut.println(line);
 
             }
             clientSocket.close();
-            server.removeThread(this);
+            server.removeThread(this, username);
         } catch (Exception e) {
             System.err.println("Error in EchoServer:" + e);
         }

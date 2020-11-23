@@ -61,7 +61,7 @@ public class ChatServer  {
 		}
 	}
 
-	public void sendToAll(String message, ClientThread sent) throws IOException {
+	public void sendToAllExceptSender(String message, ClientThread sent) throws IOException {
         appendToHistory(message + "\n");
 		for(ClientThread client : clients){
 			if(client != sent)
@@ -69,10 +69,10 @@ public class ChatServer  {
 		}
 	}
 
-	public void removeThread(ClientThread t){
+	public void removeThread(ClientThread t, String username){
 		System.out.println("Removing a client");
 		clients.remove(t);
-		sendToAll("[SERVER]: A user disconnected");
+		sendToAll("[SERVER]: User "+ username +" disconnected");
 	}
 
 	public String getHistory(){
