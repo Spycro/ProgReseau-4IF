@@ -113,6 +113,10 @@ public class WebServer {
                     String resourceLocation = header.get(0).substring(4, header.get(0).lastIndexOf(' '));
                     doGET(resourceLocation, response);
                 }
+                else if(header.get(0).contains("HEAD")) {
+                    String resourceLocation = header.get(0).substring(5, header.get(0).lastIndexOf(' '));
+                    doHEAD(resourceLocation, response);
+                }
                 else if(header.get(0).contains("POST")){
                     String resourceLocation = header.get(0).substring(5, header.get(0).lastIndexOf(' '));
                     doPOST(resourceLocation, body, response);
@@ -147,6 +151,20 @@ public class WebServer {
             data = Files.readAllBytes(file.toPath());
             response.setResponseCode(200);
             response.setBody(data);
+        } catch (IOException e) {
+            response.setResponseCode(404);
+        }
+
+    }
+
+    public void doHEAD(String location, Response response){
+        byte[] data;
+        try {
+            if (location.equals("/")) location = "/index.html";
+            File file = new File(pwd + location);
+            contentType = Files.probeContentType(file.toPath());
+            data = Files.readAllBytes(file.toPath());
+            response.setResponseCode(200);
         } catch (IOException e) {
             response.setResponseCode(404);
         }
