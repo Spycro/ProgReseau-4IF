@@ -13,7 +13,9 @@ import java.io.PrintStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-
+/**
+ * Client TCP
+ */
 public class ChatClientTCP {
 
     /**

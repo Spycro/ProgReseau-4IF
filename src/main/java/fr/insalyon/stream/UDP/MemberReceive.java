@@ -5,6 +5,9 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
+/**
+ * Thread qui permet de récupérer les messages du client
+ */
 public class MemberReceive extends Thread{
 
     private InetAddress groupAddr;

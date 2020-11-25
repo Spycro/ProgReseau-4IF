@@ -7,6 +7,9 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
+/**
+ * Client UDP
+ */
 public class ChatMember {
 
     private InetAddress groupAddr;
