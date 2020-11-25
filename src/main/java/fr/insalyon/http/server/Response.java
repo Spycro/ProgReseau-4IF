@@ -70,6 +70,8 @@ public class Response {
             case 404:
                 pw.println("HTTP/1.0 404 File Not Found");
                 break;
+            case 405:
+                pw.println("HTTP/1.0 405 Method not allowed");
             default:
                 pw.println("HTTP/1.0 500 Internal Server Error");
                 break;
