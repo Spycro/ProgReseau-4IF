@@ -26,7 +26,7 @@ public class ChatClient {
         BufferedReader stdIn = null;
 
         if (args.length != 2) {
-            System.out.println("Usage: java EchoClient <EchoServer host> <EchoServer port>");
+            System.out.println("Usage: java EchoClient <ChatClient host> <ChatClient port>");
             System.exit(1);
         }
 
