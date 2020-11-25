@@ -18,11 +18,7 @@ import java.util.Set;
 
 public class ChatServer  {
   
-	/**
-	* main method
-	* @param EchoServer port
-	* 
-	**/
+
 
 	private int PORT;
 	private Set<ClientThread> clients;
@@ -34,11 +30,18 @@ public class ChatServer  {
 		clients = new HashSet<>();
 	}
 
+	/**
+	 *
+	 * @param PORT port de lancement du chat
+	 */
 	public ChatServer(int PORT) {
 		this.PORT = PORT;
 		clients = new HashSet<>();
     }
 
+	/**
+	 *	demmarre le serveur TCP
+	 */
 	public void LaunchServer(){
 		try{
 			listenSocket = new ServerSocket(PORT);
@@ -55,6 +58,10 @@ public class ChatServer  {
 		}
 	}
 
+	/**
+	 * envoie un message a tous
+	 * @param message message à envoyer
+	 */
 	public void sendToAll(String message){
 		appendToHistory(message + "\n");
 		for(ClientThread client : clients){
@@ -62,6 +69,11 @@ public class ChatServer  {
 		}
 	}
 
+	/**
+	 *
+	 * @param message message a envoyer
+	 * @param roomNumber room où envoyer le message
+	 */
 	public void sendToRoom(String message, int roomNumber){
 		appendToHistory(roomNumber + ";" + message + "\n");
 		for(ClientThread client : clients){
@@ -71,6 +83,13 @@ public class ChatServer  {
 		}
 	}
 
+	/**
+	 *	Envoie un message a tous, sauf le client qui l'a envooyé,
+	 * utilisé quand un client se connecte
+	 * @param message message a envoyer
+	 * @param sent qui a envoyer le message
+	 * @throws IOException
+	 */
 	public void sendToAllExceptSender(String message, ClientThread sent) throws IOException {
 		for(ClientThread client : clients){
 			if(client != sent)
@@ -78,12 +97,20 @@ public class ChatServer  {
 		}
 	}
 
+	/**
+	 * enleve un client du server
+	 * @param t client a enlever
+	 */
 	public void removeThread(ClientThread t){
 		System.out.println("Removing a client");
 		clients.remove(t);
 		sendToAll("[SERVER]: User "+ t.getUsername() +" disconnected");
 	}
 
+	/**
+	 *
+	 * @return historique
+	 */
 	public String getHistory(){
 
 		StringBuilder history = new StringBuilder();
@@ -105,6 +132,11 @@ public class ChatServer  {
 		return history.toString();
 	}
 
+	/**
+	 * Obtient l'historique d'une room a partir du fichier historyPath
+	 * @param roomNumber numero de la room pour historique
+	 * @return
+	 */
 	public String getRoomHistory(int roomNumber){
 		StringBuilder history = new StringBuilder();
 
@@ -131,6 +163,10 @@ public class ChatServer  {
 		return history.toString();
 	}
 
+	/**
+	 *
+	 * @param msg to append to history
+	 */
 	private void appendToHistory(String msg){
 
 		try {
@@ -143,6 +179,10 @@ public class ChatServer  {
 		}
 	}
 
+	/**
+	 *
+	 * @param args port du serveur
+	 */
 	public static void main(String args[]) {
 		if (args.length != 1) {
 			System.out.println("Usage: java ChatServer <ChatServer port>");

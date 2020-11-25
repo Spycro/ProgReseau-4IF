@@ -21,6 +21,11 @@ public class ClientThread extends Thread {
     private String username;
     private int roomNumber;
 
+    /**
+     *
+     * @param s socket passé par le thread principal
+     * @param c le serveur TCP
+     */
     ClientThread(Socket s, ChatServer c) {
         this.clientSocket = s;
         server = c;
@@ -28,8 +33,8 @@ public class ClientThread extends Thread {
     }
 
     /**
-     *
-     *
+     * methode de demarrage du thread
+     * c'est ici que le serveur ecoute les messagges envoyer par le client
      *
      **/
     public void run() {
@@ -92,18 +97,34 @@ public class ClientThread extends Thread {
         }
     }
 
+    /**
+     *
+     * @param message message à envoyé
+     */
     public void sendMessage(String message){
         socOut.println(message);
     }
 
+    /**
+     *
+     * @return username du client actuel
+     */
     public String getUsername(){
         return username;
     }
 
+    /**
+     *
+     * @return numero de room du chat actuel
+     */
     public int getRoomNumber(){
         return roomNumber;
     }
 
+    /**
+     * methode permettant de changer la room du client
+     * @param room numero de room viser
+     */
     public void changeRoom(int room){
         int oldRoom = roomNumber;
         String roomHistory = server.getRoomHistory(room);
