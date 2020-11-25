@@ -5,7 +5,7 @@
  * Authors:
  */
 
-package fr.insalyon.stream;
+package fr.insalyon.stream.TCP;
 
 import java.io.File;
 import java.io.FileNotFoundException;
