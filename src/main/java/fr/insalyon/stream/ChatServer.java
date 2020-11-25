@@ -25,7 +25,7 @@ public class ChatServer  {
 	private ServerSocket listenSocket;
 	private final String historyPath = "history.txt";
 
-	
+
 	/**
 	 *
 	 * @param PORT port de lancement du chat

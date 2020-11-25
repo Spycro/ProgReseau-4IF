@@ -20,6 +20,12 @@ public class ChatMemberWindow extends Frame implements ActionListener, KeyListen
     private MulticastSocket mSocket;
     private ChatMember chatMember;
 
+
+    /**
+     *
+     * @param chatSocket Mutlicast socket utlisiser pour envoyer des messages
+     * @param chatMember Client utilisé
+     */
     public ChatMemberWindow (MulticastSocket chatSocket, ChatMember chatMember){
 
         setTitle("Chat Client");
@@ -84,6 +90,10 @@ public class ChatMemberWindow extends Frame implements ActionListener, KeyListen
         sendMessage(msg.getText());
     }
 
+    /**
+     *
+     * @param message message a ajouter au JPanel
+     */
     public void addToChat(String message){
         chatArea.append(message + "\n");
     }
@@ -103,6 +113,10 @@ public class ChatMemberWindow extends Frame implements ActionListener, KeyListen
     @Override
     public void keyReleased(KeyEvent e) {}
 
+    /**
+     * permet l'envoi d'un message au server
+     * @param message message a envoyer
+     */
     private void sendMessage(String message) {
         if(message.equals("/leave")){
             try {
