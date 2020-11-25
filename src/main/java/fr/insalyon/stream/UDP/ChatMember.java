@@ -54,6 +54,7 @@ public class ChatMember {
 
     /**
      * Méthode appelée au moment de quitter le chat
+     *
      */
     public void leave() throws IOException {
         sendMessage("[SERVEUR] : Deconnexion de " + username);
@@ -72,6 +73,7 @@ public class ChatMember {
 
     /**
      * Méthode qui retourne le nom de l'utilisateur
+     * @return username le nom de l'utilisateur
      */
     public String getUsername(){
         return username;
@@ -79,6 +81,7 @@ public class ChatMember {
 
     /**
      * Méthode qui met à jour le nom de l'utilisateur
+     * @param name le nouveau nom de l'utilisateur
      */
     public void setUsername(String name){
         this.username = name;
