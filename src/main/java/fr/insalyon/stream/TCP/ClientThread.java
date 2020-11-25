@@ -35,8 +35,8 @@ public class ClientThread extends Thread {
     }
 
     /**
-     * methode de demarrage du thread
-     * c'est ici que le serveur ecoute les messagges envoyer par le client
+     * methode de démarrage du thread
+     * c'est ici que le serveur ecoute les messages envoyés par le client
      *
      **/
     public void run() {

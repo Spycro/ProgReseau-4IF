@@ -36,7 +36,7 @@ public class ChatServer  {
     }
 
 	/**
-	 *	demmarre le serveur TCP
+	 *	démarre le serveur TCP
 	 */
 	public void LaunchServer(){
 		try{
@@ -67,7 +67,7 @@ public class ChatServer  {
 
 	/**
 	 *
-	 * @param message message a envoyer
+	 * @param message message à envoyer
 	 * @param roomNumber room où envoyer le message
 	 */
 	public void sendToRoom(String message, int roomNumber){
@@ -107,7 +107,7 @@ public class ChatServer  {
 
 	/**
 	 * Obtient l'historique d'une room a partir du fichier historyPath
-	 * @param roomNumber numero de la room pour historique
+	 * @param roomNumber numéro de la room pour historique
 	 * @return
 	 */
 	public String getRoomHistory(int roomNumber){
