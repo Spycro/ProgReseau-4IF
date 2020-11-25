@@ -6,6 +6,9 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.SocketException;
 
+/**
+ * Thread qui permet de récupérer les messages du client
+ */
 public class ChatClientThread extends Thread{
 
     private ChatClientWindow window;

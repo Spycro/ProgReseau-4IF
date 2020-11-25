@@ -14,6 +14,9 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
 
+/**
+ * Thread qui permet de faire communiquer le client avec le serveur
+ */
 public class ClientThread extends Thread {
 
     private final ChatServer server;

@@ -16,9 +16,10 @@ import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
 
+/**
+ * Serveur qui orchestre la réception et l'envoi des messages aux clients
+ */
 public class ChatServer  {
-  
-
 
 	private int PORT;
 	private Set<ClientThread> clients;

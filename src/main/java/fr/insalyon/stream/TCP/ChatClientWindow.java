@@ -12,6 +12,9 @@ import java.net.Socket;
 
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
+/**
+ * IHM du client TCP
+ */
 public class ChatClientWindow extends Frame implements ActionListener, KeyListener {
 
     private JFrame f;

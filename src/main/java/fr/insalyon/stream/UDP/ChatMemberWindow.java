@@ -8,6 +8,9 @@ import java.net.MulticastSocket;
 
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
+/**
+ * IHM du client TCP
+ */
 public class ChatMemberWindow extends Frame implements ActionListener, KeyListener, WindowListener {
 
     private JFrame f;
