@@ -25,11 +25,7 @@ public class ChatServer  {
 	private ServerSocket listenSocket;
 	private final String historyPath = "history.txt";
 
-	public ChatServer(){
-		PORT = 8000;
-		clients = new HashSet<>();
-	}
-
+	
 	/**
 	 *
 	 * @param PORT port de lancement du chat
@@ -107,30 +103,7 @@ public class ChatServer  {
 		sendToAll("[SERVER]: User "+ t.getUsername() +" disconnected");
 	}
 
-	/**
-	 *
-	 * @return historique
-	 */
-	public String getHistory(){
 
-		StringBuilder history = new StringBuilder();
-
-		try {
-			File historyFile = new File (historyPath);
-			if(historyFile.exists()){
-				Scanner reader = new Scanner(historyFile);
-				while (reader.hasNextLine()){
-					String data = reader.nextLine();
-					history.append(data + "\n");
-				}
-				reader.close();
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-
-		return history.toString();
-	}
 
 	/**
 	 * Obtient l'historique d'une room a partir du fichier historyPath
