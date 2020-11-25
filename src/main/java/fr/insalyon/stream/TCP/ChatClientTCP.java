@@ -4,9 +4,8 @@
  * Date: 10/01/04
  * Authors:
  */
-package fr.insalyon.stream;
+package fr.insalyon.stream.TCP;
 
-import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -15,11 +14,12 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 
-public class ChatClient {
+public class ChatClientTCP {
 
     /**
-     * main method
-     * accepts a connection, receives a message from client then sends an echo to the client
+     * méthode main
+     * établit la connexion avec le serveur, lance l'IHM et le thread d'écoute
+     * @param args Paramètres de la ligne de commande
      **/
     public static void main(String[] args) throws IOException {
 

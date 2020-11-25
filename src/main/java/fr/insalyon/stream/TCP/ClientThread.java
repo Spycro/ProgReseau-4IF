@@ -5,7 +5,9 @@
  * Authors:
  */
 
-package fr.insalyon.stream;
+package fr.insalyon.stream.TCP;
+
+import fr.insalyon.stream.TCP.ChatServer;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

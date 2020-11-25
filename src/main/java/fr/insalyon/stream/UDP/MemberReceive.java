@@ -1,10 +1,9 @@
-package fr.insalyon.stream;
+package fr.insalyon.stream.UDP;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.net.UnknownHostException;
 
 public class MemberReceive extends Thread{
 
@@ -15,6 +14,12 @@ public class MemberReceive extends Thread{
     private boolean connected;
     private ChatMemberWindow window;
 
+    /**
+     * Constructeur de MemberReceive
+     * @param PORT le port
+     * @param address l'adresse du groupe
+     * @param w la fenetre IHM
+     */
     public MemberReceive(int PORT, InetAddress address, ChatMemberWindow w){
         groupPort = PORT;
         window = w;
@@ -28,6 +33,9 @@ public class MemberReceive extends Thread{
         }
     }
 
+    /**
+     * Lance le thread et reçoit les messages pour les afficher sur l'IHM
+     */
     public void run() {
         while (connected) {
             DatagramPacket packet = new DatagramPacket(buf, buf.length);
@@ -49,6 +57,9 @@ public class MemberReceive extends Thread{
         multicastSocket.close();
     }
 
+    /**
+     * Méthode appelée au moment de la déconnexion
+     */
     public void disconnect() {
         connected = false;
     }

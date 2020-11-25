@@ -1,36 +1,39 @@
-package fr.insalyon.stream;
+package fr.insalyon.stream.TCP;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.DatagramPacket;
-import java.net.MulticastSocket;
 import java.net.Socket;
 
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
-public class ChatMemberWindow extends Frame implements ActionListener, KeyListener, WindowListener {
+public class ChatClientWindow extends Frame implements ActionListener, KeyListener {
 
     private JFrame f;
     private JTextField msg;
     private JButton send;
     private JTextArea chatArea;
-    private MulticastSocket mSocket;
-    private ChatMember chatMember;
-
+    private PrintStream socOut;
+    private Socket chatSocket;
 
     /**
-     *
-     * @param chatSocket Mutlicast socket utlisiser pour envoyer des messages
-     * @param chatMember Client utilisé
+     * Constructeur de ChatClientWindow
+     * @param chatSocket la socket
      */
-    public ChatMemberWindow (MulticastSocket chatSocket, ChatMember chatMember){
+    public ChatClientWindow (Socket chatSocket){
 
         setTitle("Chat Client");
-        this.mSocket = chatSocket;
-        this.chatMember = chatMember;
+        this.chatSocket = chatSocket;
+        try {
+            socOut = new PrintStream(chatSocket.getOutputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         JFrame startingFrame = new JFrame("Nom utilisateur");
         startingFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -45,7 +48,7 @@ public class ChatMemberWindow extends Frame implements ActionListener, KeyListen
                 "Bob"
         );
         if(username != null && !username.isEmpty()){
-            chatMember.setUsername(username);
+            socOut.println(username);
         }
         else{
             System.exit(0);
@@ -56,7 +59,6 @@ public class ChatMemberWindow extends Frame implements ActionListener, KeyListen
         f.setResizable(false);
         f.setDefaultCloseOperation(EXIT_ON_CLOSE);
         f.setLocationRelativeTo(null);
-        f.addWindowListener(this);
 
         chatArea = new JTextArea();
         chatArea.setEditable(false);
@@ -86,18 +88,26 @@ public class ChatMemberWindow extends Frame implements ActionListener, KeyListen
         f.setVisible(true);
     }
 
+    /**
+     * Méthode appelée après avoir cliqué sur le bouton "Envoyer"
+     * @param e l'événement capturé
+     */
     public void actionPerformed(ActionEvent e) {
         sendMessage(msg.getText());
     }
 
     /**
-     *
-     * @param message message a ajouter au JPanel
+     * Méthode appelée pour ajouter un message au chat
+     * @param message le message à ajouter
      */
     public void addToChat(String message){
         chatArea.append(message + "\n");
     }
 
+    /**
+     * Méthode appelée après avoir appuyé sur la touche entrée a partir de la zone de texte
+     * @param e l'événement capturé
+     */
     @Override
     public void keyPressed(KeyEvent e) {
         int key = e.getKeyCode();
@@ -114,51 +124,20 @@ public class ChatMemberWindow extends Frame implements ActionListener, KeyListen
     public void keyReleased(KeyEvent e) {}
 
     /**
-     * permet l'envoi d'un message au server
-     * @param message message a envoyer
+     * Méthode appelée pour envoyer un message
+     * @param message le message à envoyer
      */
-    private void sendMessage(String message) {
+    private void sendMessage(String message){
+        socOut.println(message);
         if(message.equals("/leave")){
-            try {
-                chatMember.leave();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
             System.exit(0);
-        }else{
             try {
-                chatMember.sendMessage("[" + chatMember.getUsername() + "] : " + message);
-            } catch (IOException e) {
-                e.printStackTrace();
+                chatSocket.close();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
             }
+        }else{
             msg.setText("");
         }
     }
-
-    @Override
-    public void windowOpened(WindowEvent e) {}
-
-    @Override
-    public void windowClosing(WindowEvent e) {
-        try {
-            chatMember.leave();
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        }
-    }
-
-    @Override
-    public void windowClosed(WindowEvent e) {}
-
-    @Override
-    public void windowIconified(WindowEvent e) {}
-
-    @Override
-    public void windowDeiconified(WindowEvent e) {}
-
-    @Override
-    public void windowActivated(WindowEvent e) {}
-
-    @Override
-    public void windowDeactivated(WindowEvent e) {}
 }

@@ -1,35 +1,33 @@
-package fr.insalyon.stream;
+package fr.insalyon.stream.UDP;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
 import java.io.IOException;
-import java.io.PrintStream;
-import java.net.Socket;
+import java.net.MulticastSocket;
 
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
-public class ChatClientWindow extends Frame implements ActionListener, KeyListener {
+public class ChatMemberWindow extends Frame implements ActionListener, KeyListener, WindowListener {
 
     private JFrame f;
     private JTextField msg;
     private JButton send;
     private JTextArea chatArea;
-    private PrintStream socOut;
-    private Socket chatSocket;
+    private MulticastSocket mSocket;
+    private ChatMember chatMember;
 
-    public ChatClientWindow (Socket chatSocket){
+
+    /**
+     *
+     * @param chatSocket Mutlicast socket utlisiser pour envoyer des messages
+     * @param chatMember Client utilisé
+     */
+    public ChatMemberWindow (MulticastSocket chatSocket, ChatMember chatMember){
 
         setTitle("Chat Client");
-        this.chatSocket = chatSocket;
-        try {
-            socOut = new PrintStream(chatSocket.getOutputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        this.mSocket = chatSocket;
+        this.chatMember = chatMember;
 
         JFrame startingFrame = new JFrame("Nom utilisateur");
         startingFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -44,7 +42,7 @@ public class ChatClientWindow extends Frame implements ActionListener, KeyListen
                 "Bob"
         );
         if(username != null && !username.isEmpty()){
-            socOut.println(username);
+            chatMember.setUsername(username);
         }
         else{
             System.exit(0);
@@ -55,6 +53,7 @@ public class ChatClientWindow extends Frame implements ActionListener, KeyListen
         f.setResizable(false);
         f.setDefaultCloseOperation(EXIT_ON_CLOSE);
         f.setLocationRelativeTo(null);
+        f.addWindowListener(this);
 
         chatArea = new JTextArea();
         chatArea.setEditable(false);
@@ -88,6 +87,10 @@ public class ChatClientWindow extends Frame implements ActionListener, KeyListen
         sendMessage(msg.getText());
     }
 
+    /**
+     *
+     * @param message message a ajouter au JPanel
+     */
     public void addToChat(String message){
         chatArea.append(message + "\n");
     }
@@ -107,17 +110,52 @@ public class ChatClientWindow extends Frame implements ActionListener, KeyListen
     @Override
     public void keyReleased(KeyEvent e) {}
 
-    private void sendMessage(String message){
-        socOut.println(message);
+    /**
+     * permet l'envoi d'un message au server
+     * @param message message a envoyer
+     */
+    private void sendMessage(String message) {
         if(message.equals("/leave")){
-            System.exit(0);
             try {
-                chatSocket.close();
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
+                chatMember.leave();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+            System.exit(0);
         }else{
+            try {
+                chatMember.sendMessage("[" + chatMember.getUsername() + "] : " + message);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             msg.setText("");
         }
     }
+
+    @Override
+    public void windowOpened(WindowEvent e) {}
+
+    @Override
+    public void windowClosing(WindowEvent e) {
+        try {
+            chatMember.leave();
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+    }
+
+    @Override
+    public void windowClosed(WindowEvent e) {}
+
+    @Override
+    public void windowIconified(WindowEvent e) {}
+
+    @Override
+    public void windowDeiconified(WindowEvent e) {}
+
+    @Override
+    public void windowActivated(WindowEvent e) {}
+
+    @Override
+    public void windowDeactivated(WindowEvent e) {}
 }
