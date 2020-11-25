@@ -22,7 +22,7 @@ import java.util.List;
 public class WebServer {
 
 
-    private final String pwd = "C:\\Users\\Kaolyfin\\IdeaProjects\\ProgReseau-4IF\\resources";
+    private String pwd;
     private String contentType;
 
 
@@ -32,21 +32,28 @@ public class WebServer {
      * @param args Command line parameters are not used.
      */
     public static void main(String args[]) {
+        if (args.length != 2) {
+            System.out.println("Usage: java ChatServer <WebServer port> <WebServer resourcePath>");
+            System.exit(1);
+        }
+
+        int port = Integer.parseInt(args[0]);
         WebServer ws = new WebServer();
-        ws.start();
+        ws.start(port, args[1]);
     }
 
     /**
      * WebServer constructor.
      */
-    protected void start() {
+    protected void start(int port, String resourcePath) {
         ServerSocket s;
+        pwd = resourcePath;
 
-        System.out.println("Webserver starting up on port 3000");
+        System.out.println("Webserver starting up on port " + port);
         System.out.println("(press ctrl-c to exit)");
         try {
             // create the main server socket
-            s = new ServerSocket(3000);
+            s = new ServerSocket(port);
         } catch (Exception e) {
             System.out.println("Error: " + e);
             return;
