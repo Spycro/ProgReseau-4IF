@@ -5,6 +5,9 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+/**
+ * Réponse constituée par le WebServer
+ */
 public class Response {
     private int responseCode;
     private String contentType;
@@ -12,27 +15,50 @@ public class Response {
     private String userAgent;
     Socket remote;
 
+    /**
+     * Constructeur de Reponse
+     * @param r la socket
+     */
     public Response(Socket r){
         remote = r;
         contentType = "text/html";
     }
 
+    /**
+     * Met a jour le code de la réponse
+     * @param responseCode le code de la réponse
+     */
     public void setResponseCode(int responseCode){
         this.responseCode = responseCode;
     }
 
+    /**
+     * Met a jour le corps de la réponse
+     * @param body le corps de la réponse
+     */
     public void setBody(byte[] body){
         this.body = body;
     }
 
+    /**
+     * Met a jour le type de contenu
+     * @param contentType le type de contenu
+     */
     public void setContentType(String contentType){
         this.contentType = contentType;
     }
 
+    /**
+     * Met a jour le userAgent
+     * @param ua le userAgent
+     */
     public void setUserAgent(String ua){
         userAgent = ua;
     }
 
+    /**
+     * Envoi la réponse
+     */
     public void send() throws IOException {
 
         OutputStream os = remote.getOutputStream();

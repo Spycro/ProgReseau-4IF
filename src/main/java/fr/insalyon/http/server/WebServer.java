@@ -10,14 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Example program from Chapter 1 Programming Spiders, Bots and Aggregators in
- * Java Copyright 2001 by Jeff Heaton
- * <p>
- * WebServer is a very simple web-server. Any request is responded with a very
- * simple web-page.
- *
- * @author Jeff Heaton
- * @version 1.0
+ * WebServer qui permet de répondre aux requetes
  */
 public class WebServer {
 
@@ -27,9 +20,9 @@ public class WebServer {
 
 
     /**
-     * Start the application.
+     * Démarrage de l'application.
      *
-     * @param args Command line parameters are not used.
+     * @param args Paramètres de la ligne de commande
      */
     public static void main(String args[]) {
         if (args.length != 2) {
@@ -43,7 +36,9 @@ public class WebServer {
     }
 
     /**
-     * WebServer constructor.
+     * Démarrage du WebServer
+     * @param port le port du serveur
+     * @param resourcePath le chemin d'accès aux ressources
      */
     protected void start(int port, String resourcePath) {
         ServerSocket s;
@@ -141,7 +136,11 @@ public class WebServer {
         }
     }
 
-
+    /**
+     * Réponse à la requete get
+     * @param location le chemin d'accès de la ressource
+     * @param response réponse à renvoyer
+     */
     public void doGET(String location, Response response){
         byte[] data;
         try {
@@ -157,13 +156,16 @@ public class WebServer {
 
     }
 
+    /**
+     * Réponse à la requete head
+     * @param location le chemin d'accès de la ressource
+     * @param response réponse à renvoyer
+     */
     public void doHEAD(String location, Response response){
-        byte[] data;
         try {
             if (location.equals("/")) location = "/index.html";
             File file = new File(pwd + location);
             contentType = Files.probeContentType(file.toPath());
-            data = Files.readAllBytes(file.toPath());
             response.setResponseCode(200);
         } catch (IOException e) {
             response.setResponseCode(404);
@@ -171,6 +173,12 @@ public class WebServer {
 
     }
 
+    /**
+     * Réponse à la requete post
+     * @param location le chemin d'accès de la ressource
+     * @param body le contenu du crops de la requete
+     * @param response réponse à renvoyer
+     */
     public void doPOST(String location, String body, Response response){
 
         String variable = "";
@@ -211,6 +219,12 @@ public class WebServer {
         }
     }
 
+    /**
+     * Réponse à la requete get
+     * @param header le contenu du head de la requete
+     * @param body le contenu du crops de la requete
+     * @param response réponse à renvoyer
+     */
     public void doPUT(List<String> header, String body, Response response) throws IOException{
         String location = header.get(0).substring(4);
         int indexOfSpace = location.indexOf(" ");
@@ -243,6 +257,11 @@ public class WebServer {
         return;
     }
 
+    /**
+     * Réponse à la requete get
+     * @param location le chemin d'accès de la ressource
+     * @param response réponse à renvoyer
+     */
     public void doDelete(String location, Response response){
         String info = "<H1>";
         File fileToDelete = new File(pwd + location);
